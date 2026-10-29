@@ -1,0 +1,891 @@
+{
+  "description": "Type-driven UI state, trust-boundary validation, generics, satisfies, advanced types, branded IDs, strict migration, event loop, cancellation, promise errors, leaks, streams and workers. Examples are illustrative scenarios written for practice, not claims about anyone's work history.",
+  "id": "fe-typescript-javascript",
+  "questions": [
+    {
+      "deepDive": "Use a `kind`/`status` literal discriminant, switch on it, and add an exhaustiveness check with a `never` assignment in the default branch so adding a new variant breaks the build until every consumer handles it. Pair with a reducer so transitions are explicit. This works equally well in Angular signals or React reducers, and makes illegal combinations (error and data at the same time) unrepresentable.",
+      "difficulty": "intermediate",
+      "example": "```ts\ntype Reply =\n  | { kind: 'idle' }\n  | { kind: 'streaming'; text: string; abort: AbortController }\n  | { kind: 'approval'; text: string; toolCall: ToolCall }\n  | { kind: 'done'; text: string; citations: Citation[] }\n  | { kind: 'error'; message: string; retryable: boolean };\nfunction assertNever(x: never): never { throw new Error(String(x)); }\n```",
+      "followUps": [
+        "How would you serialise this state for persistence?",
+        "How do you transition states safely?"
+      ],
+      "format": "subjective",
+      "id": "ts-discriminated-unions",
+      "intent": "Type-driven design that removes impossible states.",
+      "mistakes": [
+        "Boolean flags that allow contradictory states.",
+        "No exhaustiveness check, so new states are silently unhandled."
+      ],
+      "question": "How do discriminated unions help you model UI state, for example the state of a streaming AI response?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Modelling",
+          "strong": "Variants with a literal tag."
+        },
+        {
+          "criterion": "Narrowing",
+          "strong": "Explains compiler narrowing and exhaustiveness."
+        },
+        {
+          "criterion": "Application",
+          "strong": "Concrete UI-state example."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: narrowing",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html"
+        }
+      ],
+      "spokenAnswer": "Instead of one object with optional fields like isLoading, error and data that can contradict each other, I model each state as its own variant with a literal tag: idle, streaming with the partial text, awaiting approval with the pending tool call, done with the final text, error with a reason, cancelled. TypeScript narrows on the tag, so each branch only sees the fields that exist in that state and the compiler forces me to handle every case.",
+      "tags": [
+        "typescript",
+        "state machines",
+        "streaming"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "More types up front; far fewer runtime states to reason about."
+      ]
+    },
+    {
+      "deepDive": "Types are erased at runtime, so a `fetch(...).json() as Foo` cast is a promise, not a check. Validate at boundaries (network, storage, postMessage, LLM output, imported files), derive static types from schemas to avoid drift, and keep `any` out of the codebase with lint rules. For forward compatibility, decide whether unknown fields are stripped or preserved.",
+      "difficulty": "foundation",
+      "example": "In this project, every record read from GitHub or IndexedDB is validated with Zod before it is saved, and AI results pasted by the user go through MatchAnalysisSchema.",
+      "followUps": [
+        "When would you strip versus preserve unknown fields?"
+      ],
+      "format": "subjective",
+      "id": "ts-unknown-any",
+      "intent": "Type safety at trust boundaries.",
+      "mistakes": [
+        "Casting JSON with `as`.",
+        "Using any to silence errors."
+      ],
+      "question": "What is the difference between any and unknown, and how should you type data coming from an LLM or an API?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Distinction",
+          "strong": "Correct semantics of any vs unknown."
+        },
+        {
+          "criterion": "Boundary",
+          "strong": "Runtime validation at trust boundaries."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: narrowing",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html"
+        }
+      ],
+      "spokenAnswer": "any switches off type checking: you can do anything with it and errors appear at runtime. unknown means \"could be anything\" but forces you to narrow or validate before use. Data from an API or an LLM is unknown at the boundary; I parse it with a runtime schema such as Zod, which both validates it and gives me a typed result. Inside the app, types are then trustworthy.",
+      "tags": [
+        "typescript",
+        "validation",
+        "zod"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Runtime validation costs some CPU and code; it removes a whole class of bugs."
+      ]
+    },
+    {
+      "deepDive": "```ts\nfunction groupBy<T, K extends keyof T>(items: readonly T[], key: K): Map<T[K], T[]> {\n  const out = new Map<T[K], T[]>();\n  for (const item of items) {\n    const k = item[key];\n    const list = out.get(k);\n    if (list) list.push(item); else out.set(k, [item]);\n  }\n  return out;\n}\n```\n`K extends keyof T` ties the key to the item type; `T[K]` is an indexed access type. Using `readonly T[]` accepts both mutable and readonly arrays. A Map avoids prototype keys and allows non-string keys.",
+      "difficulty": "intermediate",
+      "example": "`groupBy(applications, 'status')` returns `Map<ApplicationStatus, Application[]>`, used to render kanban columns.",
+      "followUps": [
+        "How would you group by a computed key instead?"
+      ],
+      "format": "subjective",
+      "id": "ts-generics-constraints",
+      "intent": "Practical generics with constraints and keyof.",
+      "mistakes": [
+        "Returning Record<string, any>.",
+        "Unconstrained generics that accept invalid keys."
+      ],
+      "question": "Write and explain a generic, type-safe function that groups an array of records by one of their keys.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Working generic with constraint."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "keyof, indexed access, readonly."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: generics",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/generics.html"
+        }
+      ],
+      "spokenAnswer": "I constrain the key parameter to keys of the item type whose values can be used as map keys, so callers get autocomplete and the compiler rejects invalid keys. The return type is a Map from the key's value type to arrays of items, so consumers keep full type information.",
+      "tags": [
+        "typescript",
+        "generics"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Generic utilities improve reuse but over-generic APIs hurt readability."
+      ]
+    },
+    {
+      "deepDive": "Example: `const routes = { today: '/today', jobs: '/jobs' } satisfies Record<string, string>;` keeps `routes.today` typed as the literal `'/today'` and makes `routes.unknown` a compile error, while still validating that all values are strings. With `: Record<string, string>` the keys would widen to `string` and typos would compile.",
+      "difficulty": "intermediate",
+      "example": "A map of status → badge tone declared with `satisfies Record<ApplicationStatus, Tone>` fails the build when a new status is added without a tone.",
+      "followUps": [
+        "How does satisfies interact with as const?"
+      ],
+      "format": "subjective",
+      "id": "ts-satisfies",
+      "intent": "Modern TypeScript feature usage.",
+      "mistakes": [
+        "Annotating config objects and losing literal types."
+      ],
+      "question": "What does the satisfies operator do, and when is it better than a type annotation?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Semantics",
+          "strong": "Checks without widening."
+        },
+        {
+          "criterion": "Use case",
+          "strong": "Concrete config/map example."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript 4.9 release notes (satisfies)",
+          "url": "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html"
+        }
+      ],
+      "spokenAnswer": "satisfies checks that a value conforms to a type without widening the value's own inferred type. With an annotation, the variable takes the annotated type and you lose the more precise literal information. With satisfies, you get the check and keep the precise type — useful for configuration objects, route tables and lookup maps.",
+      "tags": [
+        "typescript",
+        "satisfies"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None significant; it requires TypeScript 4.9 or newer."
+      ]
+    },
+    {
+      "deepDive": "```ts\ntype Handlers<E extends { type: string }> = { [K in E['type']]: (e: Extract<E, { type: K }>) => void };\n```\nThis maps an event union to a handler object where each handler receives the right payload. Liabilities: compile-time cost, cryptic errors, and coupling. Mitigate with named intermediate types, type tests (expect-type style), and documentation.",
+      "difficulty": "senior",
+      "example": "A typed event bus for an agent UI: `Handlers<AgentEvent>` guarantees the 'tool_call' handler receives `{ type: 'tool_call'; name; args }`.",
+      "followUps": [
+        "How do you test types?"
+      ],
+      "format": "subjective",
+      "id": "ts-conditional-mapped",
+      "intent": "Advanced types with judgement.",
+      "mistakes": [
+        "Clever types nobody else can maintain."
+      ],
+      "question": "Explain mapped and conditional types with a real use case, and when they become a liability.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Knowledge",
+          "strong": "Correct explanation of both."
+        },
+        {
+          "criterion": "Use case",
+          "strong": "Realistic example."
+        },
+        {
+          "criterion": "Judgement",
+          "strong": "Knows when to stop."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: conditional types",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/conditional-types.html"
+        }
+      ],
+      "spokenAnswer": "Mapped types transform every property of a type — for example making all fields optional or readonly, or turning a record of event names into handler signatures. Conditional types choose a type based on another, like extracting the payload type from an event union. They are powerful for library APIs, but in application code deep type gymnastics make errors unreadable and slow the compiler, so I keep them in a few well-tested utility types.",
+      "tags": [
+        "typescript",
+        "advanced types"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Expressiveness versus readability and compile speed."
+      ]
+    },
+    {
+      "deepDive": "Branding gives nominal-like safety at zero runtime cost. Use it for identifiers, validated strings (emails, URLs), and units (minutes vs seconds). Keep brand creation in one place, ideally the schema parser, so every branded value has been validated. Downsides: some friction with libraries expecting plain strings and with JSON boundaries.",
+      "difficulty": "intermediate",
+      "example": "`function openApplication(id: ApplicationId)` cannot be called with a `JobId` even though both are strings at runtime.",
+      "followUps": [
+        "How would you combine brands with Zod?"
+      ],
+      "format": "subjective",
+      "id": "ts-branded-ids",
+      "intent": "Nominal typing techniques.",
+      "mistakes": [
+        "Brands created with casts everywhere, which defeats validation."
+      ],
+      "question": "How can you stop developers from accidentally passing a JobId where an ApplicationId is expected?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Problem",
+          "strong": "Structural typing explained."
+        },
+        {
+          "criterion": "Technique",
+          "strong": "Branded types with validated constructors."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: narrowing",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html"
+        }
+      ],
+      "spokenAnswer": "TypeScript is structural, so two string aliases are interchangeable. A branded type adds a phantom property — `type JobId = string & { readonly __brand: 'JobId' }` — that does not exist at runtime but makes the types incompatible. IDs are created through a constructor or parser function that validates the format and applies the brand.",
+      "tags": [
+        "typescript",
+        "branded types"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Extra ceremony versus catching a class of mix-ups."
+      ]
+    },
+    {
+      "deepDive": "Tactics: generate typed API clients or schemas at the boundary; enable `noImplicitAny` and `strictNullChecks` per library in a monorepo; use a baseline file or a ratchet script; avoid sprinkling non-null assertions — prefer real narrowing; pair with lint rules (no-explicit-any); schedule a small fixed percentage of each sprint; celebrate milestones. Angular's strict template checking can follow once component types are reliable.",
+      "difficulty": "senior",
+      "example": "A ratchet: CI counts strict errors per library and fails if any library's count increases.",
+      "followUps": [
+        "Which flag would you enable first and why?"
+      ],
+      "format": "subjective",
+      "id": "ts-strict-migration",
+      "intent": "Incremental migration leadership.",
+      "mistakes": [
+        "A single big-bang PR.",
+        "Replacing errors with `!` and `as any`."
+      ],
+      "question": "How would you migrate a large Angular codebase to strict TypeScript without stopping feature work?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Strategy",
+          "strong": "Incremental flags and scopes."
+        },
+        {
+          "criterion": "Measurement",
+          "strong": "Ratchet in CI."
+        },
+        {
+          "criterion": "Quality",
+          "strong": "Fix boundaries; avoid assertion spam."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Incrementally and measurably. Turn on strict flags one at a time, starting with the ones that find real bugs cheaply, and use a per-file or per-library approach — new code must be strict, existing files are fixed when touched or in planned batches. Track the remaining error count in CI so it only goes down, and fix root causes like untyped API layers first because they spread `any` everywhere.",
+      "tags": [
+        "typescript",
+        "migration",
+        "angular"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Speed of migration versus disruption to delivery."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "x.length > 0",
+        "Array.isArray(x)",
+        "x instanceof String",
+        "typeof x === \"array\""
+      ],
+      "deepDive": "TypeScript understands `typeof`, `instanceof`, `in`, equality checks, user-defined type guards and `Array.isArray` for narrowing.",
+      "difficulty": "foundation",
+      "example": "if (Array.isArray(x)) return x.reduce((a, b) => a + b, 0);",
+      "followUps": [
+        "Write a user-defined type guard."
+      ],
+      "format": "objective",
+      "id": "ts-narrowing-objective",
+      "intent": "Objective narrowing check.",
+      "mistakes": [
+        "Using `x.length` as a type check (both have length)."
+      ],
+      "question": "Given `function f(x: string | number[])`, which check narrows x to number[]?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses Array.isArray."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "TypeScript handbook: narrowing",
+          "url": "https://www.typescriptlang.org/docs/handbook/2/narrowing.html"
+        }
+      ],
+      "spokenAnswer": "`Array.isArray(x)` narrows to `number[]`; `typeof x === 'object'` would also work here but is less precise in general because `typeof null` is also \"object\".",
+      "tags": [
+        "typescript",
+        "narrowing"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "A compiler bug.",
+        "Structural typing: extra properties are allowed except in fresh object literals.",
+        "Because `any` is inferred.",
+        "Because strict mode is off."
+      ],
+      "deepDive": "Excess property checking is a special lint-like rule for object literals; variables with extra properties are fine.",
+      "difficulty": "foundation",
+      "example": "Passing a full Job object where `{ id: string }` is expected compiles.",
+      "followUps": [
+        "How do branded types change this?"
+      ],
+      "format": "objective",
+      "id": "ts-structural-objective",
+      "intent": "Objective structural typing check.",
+      "mistakes": [
+        "Expecting nominal typing."
+      ],
+      "question": "TypeScript accepts `const a: { id: string } = someObjectWithIdAndName;` (assigned from a variable). Why?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Structural typing explanation."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Because TypeScript is structurally typed: an object with at least the required properties is assignable. Excess-property errors only apply to fresh object literals.",
+      "tags": [
+        "typescript"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Immutable updates matter for OnPush change detection in Angular, React's re-render model, signals equality, undo/redo and three-way merges. Use `DeepReadonly` utilities sparingly; prefer readonly at module boundaries. structuredClone helps for copies but is not free.",
+      "difficulty": "intermediate",
+      "example": "A merge function receives `Readonly<Application>` for base, local and remote, so it cannot mutate inputs while computing the merged result.",
+      "followUps": [
+        "When does immutability hurt performance?"
+      ],
+      "format": "subjective",
+      "id": "ts-readonly-immutability",
+      "intent": "Immutability in practice.",
+      "mistakes": [
+        "Believing readonly freezes objects at runtime."
+      ],
+      "question": "How do you use TypeScript to support immutable state updates, and what are its limits?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Technique",
+          "strong": "readonly, ReadonlyArray, as const."
+        },
+        {
+          "criterion": "Limits",
+          "strong": "Compile-time and shallow."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "I mark state types readonly — readonly properties, ReadonlyArray, Readonly<T> or as const — so accidental mutations fail to compile, and update state by creating new objects. The limit is that readonly is compile-time only and shallow unless applied deeply, so runtime code or libraries can still mutate; for critical paths I use structural sharing helpers or freeze objects in development.",
+      "tags": [
+        "typescript",
+        "immutability"
+      ],
+      "topic": "TypeScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Safety versus verbosity and copying cost."
+      ]
+    },
+    {
+      "deepDive": "Implications: long synchronous work blocks input and rendering; long chains of microtasks can also starve rendering; `await` resumes in a microtask; batching updates in a microtask is a common framework technique; heavy work belongs in Web Workers or chunked with scheduling. In Node, process.nextTick runs even before promise microtasks.",
+      "difficulty": "intermediate",
+      "example": "```js\nconsole.log('a');\nsetTimeout(() => console.log('timeout'));\nPromise.resolve().then(() => console.log('micro'));\nconsole.log('b');\n// a, b, micro, timeout\n```",
+      "followUps": [
+        "How would you keep the UI responsive while parsing a 20 MB JSON?"
+      ],
+      "format": "subjective",
+      "id": "js-event-loop",
+      "intent": "Runtime model fundamentals.",
+      "mistakes": [
+        "Thinking setTimeout(fn, 0) runs immediately.",
+        "Blocking the main thread with heavy parsing of large responses."
+      ],
+      "question": "Explain the event loop, microtasks and macrotasks. What is the output order of a setTimeout, a resolved promise .then and a synchronous log?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Model",
+          "strong": "Stack, microtasks, macrotasks, rendering."
+        },
+        {
+          "criterion": "Order",
+          "strong": "Correct output order."
+        },
+        {
+          "criterion": "Implication",
+          "strong": "Practical consequence."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: JavaScript execution model / event loop",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop"
+        }
+      ],
+      "spokenAnswer": "JavaScript runs one task at a time on the call stack. When the stack is empty, the runtime first drains the microtask queue — promise callbacks, queueMicrotask — and only then takes the next macrotask such as a timer or I/O callback; rendering happens between tasks in browsers. So the synchronous log prints first, then the promise callback, then the setTimeout callback, even with a zero delay.",
+      "tags": [
+        "javascript",
+        "event loop"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None; this is a model to reason with."
+      ]
+    },
+    {
+      "deepDive": "Details: one controller per in-flight request; abort previous on new input (switch semantics); pass signals into your own async functions and check `signal.aborted` between steps; clean up reader locks; distinguish AbortError from network errors; use `AbortSignal.timeout()` for timeouts and `AbortSignal.any()` to combine; on the server, listen for request close and cancel the upstream model stream; record partial output if useful.",
+      "difficulty": "intermediate",
+      "example": "```ts\nconst ctrl = new AbortController();\nstopButton.onclick = () => ctrl.abort();\nconst res = await fetch('/api/chat', { method: 'POST', body, signal: ctrl.signal });\nfor await (const chunk of readText(res.body!)) render(chunk);\n```",
+      "followUps": [
+        "How do you cancel a tool execution that already started?"
+      ],
+      "format": "subjective",
+      "id": "js-abort-cancellation",
+      "intent": "Essential for AI streaming UIs.",
+      "mistakes": [
+        "Ignoring the AbortError and showing a red error toast.",
+        "Not stopping upstream generation."
+      ],
+      "question": "How do you implement cancellation for a streaming fetch request end to end?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Client",
+          "strong": "AbortController usage and error handling."
+        },
+        {
+          "criterion": "Server",
+          "strong": "Propagates cancellation upstream."
+        },
+        {
+          "criterion": "UX",
+          "strong": "Cancelled state distinct from error."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: AbortController",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
+        }
+      ],
+      "spokenAnswer": "Create an AbortController per request, pass its signal to fetch, and call abort when the user presses stop, navigates away or starts a new request. The fetch promise and the stream reader reject with an AbortError, which the UI treats as \"cancelled\", not as a failure. The server must also notice the closed connection and stop generating, otherwise you still pay for tokens nobody reads.",
+      "tags": [
+        "javascript",
+        "cancellation",
+        "streaming",
+        "abortcontroller"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Propagating cancellation to the server requires server cooperation."
+      ]
+    },
+    {
+      "deepDive": "Patterns: `try/finally` for cleanup; typed error results for expected failures; wrap fire-and-forget with `void task().catch(report)`; concurrency limits for many parallel requests; timeouts via AbortSignal; lint rules such as no-floating-promises. In Node, unhandled rejections crash the process by default in modern versions — good for surfacing bugs.",
+      "difficulty": "intermediate",
+      "example": "Discovery fetches 90 sources with a worker pool; each source's failure is caught and recorded so one dead board cannot fail the run.",
+      "followUps": [
+        "How do you limit concurrency of 100 promises?"
+      ],
+      "format": "subjective",
+      "id": "js-promise-errors",
+      "intent": "Async robustness.",
+      "mistakes": [
+        "`array.forEach(async ...)` expecting it to await.",
+        "Empty catch blocks."
+      ],
+      "question": "What are common promise error-handling mistakes, and how do you avoid unhandled rejections?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mistakes",
+          "strong": "Names several real ones."
+        },
+        {
+          "criterion": "Practices",
+          "strong": "await/return/handle, allSettled, lint."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: Using promises",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises"
+        }
+      ],
+      "spokenAnswer": "Common mistakes: forgetting to return or await a promise so its error escapes, mixing then/catch with async/await inconsistently, catching and swallowing errors, using Promise.all when one failure should not discard other results, and fire-and-forget calls without handlers. I make every promise either awaited, returned or explicitly handled, use Promise.allSettled when partial success is acceptable, and register global handlers that report unhandled rejections.",
+      "tags": [
+        "javascript",
+        "promises",
+        "errors"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "allSettled preserves partial results but makes callers handle mixed outcomes."
+      ]
+    },
+    {
+      "deepDive": "Typical culprits: window/document listeners, setInterval, RxJS subscriptions without teardown, third-party widgets, detached DOM nodes held in arrays, unbounded caches (use LRU or WeakMap), and closures captured in long-lived services. Tools: Chrome DevTools memory panel (heap snapshot comparison, allocation timeline, detached elements). Angular helpers like takeUntilDestroyed and DestroyRef make teardown systematic.",
+      "difficulty": "senior",
+      "example": "A grid screen leaked after each navigation because a resize listener captured the component; heap snapshots showed growing detached nodes until the listener was removed in ngOnDestroy.",
+      "followUps": [
+        "When is a WeakMap the right tool?"
+      ],
+      "format": "subjective",
+      "id": "js-closures-leaks",
+      "intent": "Performance debugging skill.",
+      "mistakes": [
+        "Assuming the framework cleans up all listeners.",
+        "Unbounded memo caches keyed by objects."
+      ],
+      "question": "How do closures cause memory leaks in single-page apps, and how do you find them?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanism",
+          "strong": "Explains retention via closures."
+        },
+        {
+          "criterion": "Prevention",
+          "strong": "Teardown patterns."
+        },
+        {
+          "criterion": "Diagnosis",
+          "strong": "Heap snapshot workflow."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "A closure keeps alive every variable it references. If a long-lived object — a global event listener, an interval, a subscription, a cache — holds a callback that closes over a component's state or DOM nodes, that component can never be garbage-collected after it is destroyed. I prevent it by cleaning up listeners, intervals and subscriptions on destroy, and find leaks with heap snapshots: navigate in and out several times and compare retained objects.",
+      "tags": [
+        "javascript",
+        "memory",
+        "performance",
+        "angular"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "The class instance.",
+        "The button element (currentTarget).",
+        "undefined always.",
+        "The window object always."
+      ],
+      "deepDive": "Event listeners call handlers with `this` set to the current target. Methods lose their receiver when passed as references.",
+      "difficulty": "foundation",
+      "example": "Use `onClick = () => {...}` as a class field, or `addEventListener('click', () => this.onClick())`.",
+      "followUps": [
+        "What does bind return?"
+      ],
+      "format": "objective",
+      "id": "js-this-binding-objective",
+      "intent": "Objective this-binding check.",
+      "mistakes": [
+        "Expecting `this` to be the instance."
+      ],
+      "question": "Inside a class method passed as `button.addEventListener(\"click\", this.onClick)`, what is `this` when the handler runs (assuming onClick is a normal method)?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses the element."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "The element the listener is attached to (the button), not the class instance — unless you bind the method, use an arrow function property, or wrap it in an arrow function.",
+      "tags": [
+        "javascript",
+        "this"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Arrow fields create a function per instance."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "1, 2, 3",
+        "3, 2, 1",
+        "2, 3, 1",
+        "3, 1, 2"
+      ],
+      "deepDive": "Synchronous code runs first; then the microtask queue is drained completely (queueMicrotask, promise callbacks); only then does the event loop take the next macrotask such as a timer.",
+      "difficulty": "foundation",
+      "example": "Same reasoning applies to promise callbacks.",
+      "followUps": [
+        "Where does process.nextTick fit in Node?"
+      ],
+      "format": "objective",
+      "id": "js-microtask-objective",
+      "intent": "Objective event-loop check.",
+      "mistakes": [
+        "Answering 1, 2, 3."
+      ],
+      "question": "What does this print? `setTimeout(()=>log(1)); queueMicrotask(()=>log(2)); log(3);`",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "3, 2, 1."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: JavaScript execution model / event loop",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop"
+        }
+      ],
+      "spokenAnswer": "3, 2, 1 — synchronous code first, then microtasks, then the timer macrotask.",
+      "tags": [
+        "javascript",
+        "event loop"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Key details: chunks do not align with messages, so buffer until a delimiter (blank line for SSE); decode with streaming mode to handle multi-byte characters split across chunks; handle `data:` lines, multi-line data and comments; support cancellation via AbortController; release the reader on errors; backpressure is handled by awaiting each read. For JSON streaming, parse each complete event, not raw chunks.",
+      "difficulty": "intermediate",
+      "example": "```ts\nconst reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();\nlet buf = '';\nfor (;;) {\n  const { value, done } = await reader.read();\n  if (done) break;\n  buf += value;\n  let i;\n  while ((i = buf.indexOf('\\n\\n')) >= 0) { handleEvent(buf.slice(0, i)); buf = buf.slice(i + 2); }\n}\n```",
+      "followUps": [
+        "How do you reconnect and resume an SSE stream?"
+      ],
+      "format": "subjective",
+      "id": "js-streams-reading",
+      "intent": "Streams API practical knowledge for AI UIs.",
+      "mistakes": [
+        "Assuming each chunk is one message.",
+        "Decoding chunks independently and corrupting multi-byte characters."
+      ],
+      "question": "How do you read a streamed HTTP response in the browser and turn it into text chunks or server-sent events?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanics",
+          "strong": "ReadableStream, decoder, buffering."
+        },
+        {
+          "criterion": "SSE",
+          "strong": "Event parsing and EventSource limits."
+        },
+        {
+          "criterion": "Robustness",
+          "strong": "Cancellation and errors."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: Streams API",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Streams_API"
+        },
+        {
+          "title": "MDN: Server-sent events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        }
+      ],
+      "spokenAnswer": "`response.body` is a ReadableStream of bytes. I pipe it through a TextDecoderStream, then split it into lines or SSE events with a small parser that buffers partial lines across chunks, and handle each complete event. EventSource is simpler for SSE but only supports GET without custom headers, so for POST requests with auth I use fetch plus a manual parser.",
+      "tags": [
+        "javascript",
+        "streaming",
+        "sse"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Manual parsing gives control (POST, headers) at the cost of code; EventSource is simpler but limited."
+      ]
+    },
+    {
+      "deepDive": "Considerations: structured cloning cost (use transferable objects like ArrayBuffers for large binary data), worker startup time (keep a pool), message protocol design (request IDs, cancellation), bundler support for worker modules, debugging complexity. Alternatives: chunking work with scheduling APIs, virtualisation to render less, server-side precomputation.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a client-side filter over 50,000 rows with fuzzy matching moves into a worker; the grid shows results incrementally and typing stays smooth.",
+      "followUps": [
+        "How do you cancel an in-flight worker computation?"
+      ],
+      "format": "subjective",
+      "id": "js-workers",
+      "intent": "Main-thread performance judgement.",
+      "mistakes": [
+        "Moving DOM-related work into a worker (impossible).",
+        "Sending huge objects back and forth on every keystroke."
+      ],
+      "question": "When would you move work to a Web Worker in a data-heavy enterprise UI?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Criteria",
+          "strong": "CPU-heavy, no DOM, long tasks."
+        },
+        {
+          "criterion": "Costs",
+          "strong": "Cloning, startup, protocol."
+        },
+        {
+          "criterion": "Alternatives",
+          "strong": "Chunking, virtualisation."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "When a computation is CPU-heavy and long enough to cause jank — parsing or transforming large datasets, diffing, search indexing, client-side scoring of thousands of records — and it does not need DOM access. The worker receives data by message, does the work and returns results; the main thread stays responsive. For small or frequent tasks the messaging overhead can outweigh the benefit.",
+      "tags": [
+        "javascript",
+        "web workers",
+        "performance"
+      ],
+      "topic": "JavaScript",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Responsiveness versus complexity and cloning overhead."
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "title": "TypeScript and JavaScript for AI-ready frontends",
+  "track": "frontend-fullstack"
+}

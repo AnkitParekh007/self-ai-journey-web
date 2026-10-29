@@ -1,0 +1,27 @@
+{
+  "name": "self-ai-journey-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Public, data-free shell of Self AI Journey. Personal data lives only in your browser and your private repository.",
+  "scripts": {
+    "build": "PUBLIC_SHELL=1 vite build --config app/vite.config.ts",
+    "preview": "vite preview --config app/vite.config.ts"
+  },
+  "dependencies": {
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "zod": "4.6.7",
+    "dompurify": "3.4.17",
+    "marked": "18.1.1",
+    "jszip": "3.10.2"
+  },
+  "devDependencies": {
+    "vite": "8.3.4",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "6.0.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@types/node": "22.20.5"
+  }
+}

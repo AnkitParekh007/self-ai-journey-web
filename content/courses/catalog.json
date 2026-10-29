@@ -1,0 +1,866 @@
+{
+  "notes": [
+    "Every link points to official material. Study notes and exercises in this app are original; courses and assessments are not copied.",
+    "Verification: \"verified\" = the URL returned HTTP 200 and the page title matched (automated weekly check from GitHub Actions). \"search-index-only\" = seen in web-search results only. \"unverified\" = listed by third-party catalog summaries; the link opens the official catalog root so you can find it. Durations are left empty until read on the provider page.",
+    "Free course access is different from paid API usage and from paid certification exams. The app never marks a course complete: paste the certificate or badge link you receive."
+  ],
+  "resources": [
+    {
+      "competencies": [
+        "explaining LLM capabilities and limits to non-experts"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "none",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage."
+      },
+      "deliverable": "One-page note: three ways you will use Claude in your job search, with prompts you tested.",
+      "id": "academy-claude-101",
+      "kind": "course",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 3,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Claude 101",
+      "topics": [
+        "AI fluency",
+        "Claude basics"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/claude-101",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "agentic coding workflow",
+        "CLAUDE.md design",
+        "reviewing agent changes"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage."
+      },
+      "deliverable": "Use Claude Code on this repository: add one validated feature with a test; write down what CLAUDE.md rules it followed.",
+      "id": "academy-claude-code-101",
+      "kind": "course",
+      "plannedHours": 4,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Claude Code 101",
+      "topics": [
+        "Claude Code",
+        "agentic coding",
+        "CLAUDE.md",
+        "context management"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/claude-code-101",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "hooks",
+        "permissions",
+        "team workflows"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage."
+      },
+      "deliverable": "Add a pre-tool hook to this repo that blocks writing token-shaped strings; demo it in a short write-up.",
+      "id": "academy-claude-code-in-action",
+      "kind": "course",
+      "plannedHours": 4,
+      "prerequisites": [
+        "Claude Code 101"
+      ],
+      "priority": 1,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Claude Code in Action",
+      "topics": [
+        "Claude Code",
+        "hooks",
+        "MCP in Claude Code",
+        "workflows"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/claude-code-in-action",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "API fundamentals",
+        "tool use",
+        "cost awareness"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Write a tiny CLI that calls the API with a mocked transport in tests; real calls only behind an explicit flag with a cost cap.",
+      "id": "academy-claude-platform-101",
+      "kind": "course",
+      "plannedHours": 5,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Claude Platform 101 (API foundations)",
+      "topics": [
+        "Claude API",
+        "messages",
+        "tool use",
+        "prompt caching"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "responsible AI use",
+        "evaluating AI outputs"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "none",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Short reflection mapping the framework onto how you use AI for applications (truthful-profile rules).",
+      "id": "academy-ai-fluency",
+      "kind": "course",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 3,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "AI Fluency: Framework & Foundations",
+      "topics": [
+        "AI fluency",
+        "delegation",
+        "evaluation of AI output"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "MCP architecture",
+        "tool design"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Portfolio project 3 milestone: MCP server with two read tools and one validated write tool over synthetic data.",
+      "id": "academy-intro-mcp",
+      "kind": "course",
+      "plannedHours": 5,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Introduction to Model Context Protocol",
+      "topics": [
+        "MCP",
+        "servers",
+        "clients",
+        "tools",
+        "resources",
+        "prompts"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "MCP transports",
+        "MCP security"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Add Streamable HTTP transport to the project-3 server, bound to localhost with origin checks and tests.",
+      "id": "academy-mcp-advanced",
+      "kind": "course",
+      "plannedHours": 5,
+      "prerequisites": [
+        "Introduction to Model Context Protocol"
+      ],
+      "priority": 2,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Model Context Protocol: Advanced Topics",
+      "topics": [
+        "MCP",
+        "transports",
+        "sampling",
+        "notifications"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "skills design"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "none",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Package the document renderer as a skill in .claude/skills with a precise description; verify it triggers.",
+      "id": "academy-agent-skills",
+      "kind": "course",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Introduction to Agent Skills",
+      "topics": [
+        "skills",
+        "Claude Code",
+        "progressive disclosure"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "subagent design"
+      ],
+      "cost": {
+        "access": "unknown",
+        "apiUsageNeeded": "none",
+        "certification": "unknown",
+        "note": "Seen on the Anthropic partner-academy listing in search results; may not be in the public catalog. Check before planning around it."
+      },
+      "deliverable": "Create a read-only reviewer subagent for this repo and compare a review with and without it.",
+      "id": "academy-subagents",
+      "kind": "course",
+      "plannedHours": 2,
+      "prerequisites": [],
+      "priority": 3,
+      "provider": "Anthropic Academy (availability uncertain)",
+      "statedDuration": null,
+      "title": "Introduction to subagents",
+      "topics": [
+        "subagents",
+        "context isolation"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Partner-academy listing in web search (2026-10-29); public availability not confirmed.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "RAG",
+        "tool use",
+        "evaluation"
+      ],
+      "cost": {
+        "access": "free-with-account",
+        "apiUsageNeeded": "optional",
+        "certification": "unknown",
+        "note": "Anthropic Academy (Skilljar). Third-party summaries describe the courses as free with a Skilljar login and certificates of completion; confirm on the course page. API exercises, if any, are billed separately as API usage. Hands-on exercises that call the API cost money; this plan uses mocks first. Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there."
+      },
+      "deliverable": "Portfolio project 2: RAG assistant with citations and a retrieval eval, using mocked responses by default.",
+      "id": "academy-building-with-api",
+      "kind": "course",
+      "plannedHours": 10,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic Academy",
+      "statedDuration": null,
+      "title": "Building with the Claude API",
+      "topics": [
+        "Claude API",
+        "RAG",
+        "tool use",
+        "evals",
+        "agents"
+      ],
+      "track": "applied-ai",
+      "url": "https://anthropic.skilljar.com/",
+      "verification": {
+        "checkedAt": null,
+        "method": "Listed by third-party summaries of the Anthropic Academy catalog; exact URL not confirmed, so the link opens the official catalog. Find the course there.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "agent architecture",
+        "workflow patterns"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "One-page comparison: workflow vs agent for three features in this app.",
+      "id": "anthropic-building-effective-agents",
+      "kind": "article",
+      "plannedHours": 1.5,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic (engineering blog)",
+      "statedDuration": null,
+      "title": "Building effective agents",
+      "topics": [
+        "agents",
+        "workflows",
+        "orchestration"
+      ],
+      "track": "applied-ai",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "RAG design"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Add contextual chunk headers to project 2 and compare recall@5.",
+      "id": "anthropic-contextual-retrieval",
+      "kind": "article",
+      "plannedHours": 1,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Anthropic",
+      "statedDuration": null,
+      "title": "Introducing Contextual Retrieval",
+      "topics": [
+        "RAG",
+        "chunking",
+        "hybrid search",
+        "reranking"
+      ],
+      "track": "applied-ai",
+      "url": "https://www.anthropic.com/news/contextual-retrieval",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "prompt design"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Rewrite the tailoring prompt in core/prompts.ts with clearer structure; measure on 5 synthetic postings.",
+      "id": "anthropic-prompt-engineering",
+      "kind": "docs",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic docs",
+      "statedDuration": null,
+      "title": "Prompt engineering overview (docs)",
+      "topics": [
+        "prompting",
+        "structured output"
+      ],
+      "track": "applied-ai",
+      "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "tool design"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Design JSON schemas for project-3 tools and write tests for invalid arguments.",
+      "id": "anthropic-tool-use",
+      "kind": "docs",
+      "plannedHours": 2,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic docs",
+      "statedDuration": null,
+      "title": "Tool use (docs)",
+      "topics": [
+        "tool use",
+        "agents"
+      ],
+      "track": "applied-ai",
+      "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "cost optimisation"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Document a cache-friendly prompt layout for the interview-prep prompt.",
+      "id": "anthropic-prompt-caching",
+      "kind": "docs",
+      "plannedHours": 1,
+      "prerequisites": [],
+      "priority": 3,
+      "provider": "Anthropic docs",
+      "statedDuration": null,
+      "title": "Prompt caching (docs)",
+      "topics": [
+        "cost",
+        "latency",
+        "caching"
+      ],
+      "track": "applied-ai",
+      "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-caching",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "agentic coding"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Improve this repo's .claude/commands and CLAUDE.md after reading.",
+      "id": "claude-code-docs",
+      "kind": "docs",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Anthropic docs",
+      "statedDuration": null,
+      "title": "Claude Code documentation (subagents, skills, hooks, memory)",
+      "topics": [
+        "Claude Code",
+        "subagents",
+        "skills",
+        "hooks"
+      ],
+      "track": "applied-ai",
+      "url": "https://docs.claude.com/en/docs/claude-code/overview",
+      "verification": {
+        "checkedAt": null,
+        "method": "Official docs URL; not re-opened in this session.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "agent harness design"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "optional",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Sketch (no paid calls) how project 3 would run on the SDK with restricted tools.",
+      "id": "agent-sdk-docs",
+      "kind": "docs",
+      "plannedHours": 2,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Anthropic docs",
+      "statedDuration": null,
+      "title": "Claude Agent SDK overview",
+      "topics": [
+        "Agent SDK",
+        "agents"
+      ],
+      "track": "applied-ai",
+      "url": "https://docs.claude.com/en/docs/agent-sdk/overview",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "MCP architecture",
+        "MCP security"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Write a threat model for the project-3 server using the spec's security best practices.",
+      "id": "mcp-docs",
+      "kind": "spec",
+      "plannedHours": 4,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "MCP project",
+      "statedDuration": null,
+      "title": "Model Context Protocol docs and specification",
+      "topics": [
+        "MCP",
+        "transports",
+        "authorization",
+        "security"
+      ],
+      "track": "applied-ai",
+      "url": "https://modelcontextprotocol.io/docs/getting-started/intro",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "AI security"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Map each top-10 risk to a control (or gap) in this app and in project 1.",
+      "id": "owasp-llm-top10",
+      "kind": "guide",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "OWASP GenAI Security Project",
+      "statedDuration": null,
+      "title": "OWASP Top 10 for LLM Applications",
+      "topics": [
+        "security",
+        "prompt injection",
+        "output handling"
+      ],
+      "track": "applied-ai",
+      "url": "https://genai.owasp.org/llm-top-10/",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "modern Angular reactivity"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Port project 1's streaming state machine to an Angular signals component (optional variant).",
+      "id": "angular-signals",
+      "kind": "docs",
+      "plannedHours": 4,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "Angular (angular.dev)",
+      "statedDuration": null,
+      "title": "Angular signals and zoneless guides",
+      "topics": [
+        "Angular",
+        "signals",
+        "change detection"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://angular.dev/guide/signals",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "React idioms"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Refactor one component in this app to remove an unnecessary effect.",
+      "id": "react-learn",
+      "kind": "docs",
+      "plannedHours": 4,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "React (react.dev)",
+      "statedDuration": null,
+      "title": "React: Learn (effects, state, transitions)",
+      "topics": [
+        "React",
+        "hooks",
+        "state"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://react.dev/learn",
+      "verification": {
+        "checkedAt": null,
+        "method": "Official docs URL; not re-opened in this session.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "TypeScript design"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Add exhaustive discriminated-union handling to project 1 with a type test.",
+      "id": "ts-handbook",
+      "kind": "docs",
+      "plannedHours": 4,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "TypeScript",
+      "statedDuration": null,
+      "title": "TypeScript handbook",
+      "topics": [
+        "TypeScript",
+        "narrowing",
+        "generics"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "streaming UIs"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Implement the SSE parser in project 1 with tests for split chunks and multi-byte characters.",
+      "id": "mdn-streams-sse",
+      "kind": "docs",
+      "plannedHours": 2,
+      "prerequisites": [],
+      "priority": 1,
+      "provider": "MDN",
+      "statedDuration": null,
+      "title": "MDN: Streams API, Server-sent events, AbortController",
+      "topics": [
+        "streaming",
+        "SSE",
+        "cancellation"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Streams_API",
+      "verification": {
+        "checkedAt": null,
+        "method": "Official docs URL; not re-opened in this session.",
+        "status": "unverified"
+      }
+    },
+    {
+      "competencies": [
+        "accessible UIs"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Keyboard-only and screen-reader pass over this app; file and fix issues.",
+      "id": "webdev-learn-a11y",
+      "kind": "course",
+      "plannedHours": 5,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "web.dev",
+      "statedDuration": null,
+      "title": "Learn Accessibility",
+      "topics": [
+        "accessibility",
+        "ARIA",
+        "focus"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://web.dev/learn/accessibility",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "e2e testing"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Add one Playwright test to project 1 for stop/approve flows with the mocked provider.",
+      "id": "playwright-docs",
+      "kind": "docs",
+      "plannedHours": 2,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Playwright",
+      "statedDuration": null,
+      "title": "Playwright: getting started and best practices",
+      "topics": [
+        "testing",
+        "e2e"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://playwright.dev/docs/best-practices",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    },
+    {
+      "competencies": [
+        "Node.js internals"
+      ],
+      "cost": {
+        "access": "free",
+        "apiUsageNeeded": "none",
+        "certification": "none",
+        "note": ""
+      },
+      "deliverable": "Write a mock SSE server for project 1 that honours backpressure and client disconnects.",
+      "id": "node-learn",
+      "kind": "docs",
+      "plannedHours": 3,
+      "prerequisites": [],
+      "priority": 2,
+      "provider": "Node.js",
+      "statedDuration": null,
+      "title": "Node.js: Learn (event loop, streams, backpressure)",
+      "topics": [
+        "Node.js",
+        "event loop",
+        "streams"
+      ],
+      "track": "frontend-fullstack",
+      "url": "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick",
+      "verification": {
+        "checkedAt": "2026-10-29",
+        "method": "HTTP 200 and page title matched, checked from GitHub Actions (weekly learning refresh). Duration and cost wording still need a human read.",
+        "status": "verified"
+      }
+    }
+  ],
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-29"
+}

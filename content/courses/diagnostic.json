@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "topics": [
+    {
+      "probeQuestionIds": [
+        "llm-tokens-cost",
+        "llm-context-window",
+        "llm-hallucination"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "LLM fundamentals",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "prompt-system-design",
+        "prompt-structured-output",
+        "prompt-versioning"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "Prompting & structured output",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "agent-tool-design",
+        "agent-workflow-vs-agent",
+        "agent-hitl-approvals"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "rag-chunking",
+        "rag-hybrid-search",
+        "rag-eval-metrics"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "RAG & retrieval",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "mcp-architecture",
+        "mcp-transports",
+        "mcp-security-risks"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "MCP",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "evals-dataset",
+        "evals-llm-judge",
+        "evals-tracing"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "Evaluation & observability",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "sec-prompt-injection",
+        "sec-exfiltration",
+        "sec-authz-agents"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "AI security",
+      "track": "applied-ai"
+    },
+    {
+      "probeQuestionIds": [
+        "ng-change-detection",
+        "ng-rxjs-flattening",
+        "ng-di-hierarchy"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "Angular",
+      "track": "frontend-fullstack"
+    },
+    {
+      "probeQuestionIds": [
+        "ts-discriminated-unions",
+        "ts-generics-constraints",
+        "ts-unknown-any"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "TypeScript",
+      "track": "frontend-fullstack"
+    },
+    {
+      "probeQuestionIds": [
+        "ux-streaming-states",
+        "ux-tool-approval",
+        "ux-streaming-transport"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack"
+    },
+    {
+      "probeQuestionIds": [
+        "arch-micro-frontends",
+        "arch-state-management",
+        "arch-legacy-migration"
+      ],
+      "testOutRule": "Test out with all three rated ≥2/3.",
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack"
+    }
+  ]
+}

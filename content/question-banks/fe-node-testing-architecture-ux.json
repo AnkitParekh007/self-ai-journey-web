@@ -1,0 +1,1705 @@
+{
+  "description": "Event-loop blocking, backpressure, NestJS orchestration, shutdown, rate limiting; testing strategy and LLM test doubles; micro-frontends, design systems, state, budgets, migrations, flags, BFF; streaming transports and states, approvals, partial JSON, errors, citations, latency, undo; live regions, focus, keyboard alternatives, contrast. Examples are illustrative scenarios written for practice, not claims about anyone's work history.",
+  "id": "fe-node-testing-architecture-ux",
+  "questions": [
+    {
+      "deepDive": "Diagnose with event-loop delay metrics and profiling. Fixes: streaming parsers; worker_threads pool for CPU work; background job queue with concurrency limits; chunking work with setImmediate for moderate tasks; avoid synchronous fs/crypto APIs on request paths; set request size limits.",
+      "difficulty": "intermediate",
+      "example": "Moving PDF rendering of resumes out of the request path into a queued worker kept API p95 latency flat during bulk renders (hypothetical).",
+      "followUps": [
+        "How do you report progress for queued jobs?"
+      ],
+      "format": "subjective",
+      "id": "node-blocking",
+      "intent": "Event-loop blocking awareness.",
+      "mistakes": [
+        "Using synchronous APIs in handlers.",
+        "Buffering entire uploads in memory."
+      ],
+      "question": "Your Node.js API slows down for everyone whenever one user uploads a large file for processing. Why, and how do you fix it?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Cause",
+          "strong": "Single-threaded event loop blocked."
+        },
+        {
+          "criterion": "Fixes",
+          "strong": "Workers/queues/streaming."
+        },
+        {
+          "criterion": "Diagnosis",
+          "strong": "Loop-delay metrics."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Node.js: event loop, timers and nextTick",
+          "url": "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick"
+        }
+      ],
+      "spokenAnswer": "Node runs JavaScript on a single main thread. If processing the file does heavy synchronous work — parsing, hashing, image work, big JSON transforms — the event loop is blocked and no other request is served until it finishes. I move CPU-heavy work off the main thread with worker threads or a separate job queue and worker service, stream the upload instead of buffering it, and return quickly with a job ID the client can poll or subscribe to.",
+      "tags": [
+        "node",
+        "event loop",
+        "performance"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Queues add infrastructure and eventual consistency."
+      ]
+    },
+    {
+      "deepDive": "Also: propagate cancellation both ways — client disconnect must abort the upstream model request; set timeouts; flush SSE events promptly (disable compression buffering for SSE or flush explicitly); heartbeat comments keep proxies from closing idle connections; limit concurrent streams per user.",
+      "difficulty": "senior",
+      "example": "```ts\nimport { pipeline } from 'node:stream/promises';\nreq.on('close', () => upstream.abort());\nawait pipeline(modelStream, toSseTransform(), res);\n```",
+      "followUps": [
+        "How do intermediaries like proxies affect SSE?"
+      ],
+      "format": "subjective",
+      "id": "node-streams-backpressure",
+      "intent": "Streaming correctness under load.",
+      "mistakes": [
+        "Ignoring the return value of write().",
+        "Not aborting upstream on client disconnect."
+      ],
+      "question": "Explain backpressure in Node streams and why it matters when proxying an LLM stream to many clients.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Producer/consumer flow control."
+        },
+        {
+          "criterion": "Application",
+          "strong": "Bounded memory, pipeline."
+        },
+        {
+          "criterion": "Cancellation",
+          "strong": "Disconnect handling."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Node.js: backpressuring in streams",
+          "url": "https://nodejs.org/en/learn/modules/backpressuring-in-streams"
+        },
+        {
+          "title": "MDN: Server-sent events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        }
+      ],
+      "spokenAnswer": "Backpressure is the mechanism that slows a fast producer when the consumer cannot keep up. In Node, write returns false when the destination buffer is full and you should wait for drain; pipeline handles this automatically. When proxying model output to slow clients, ignoring backpressure means buffering unbounded data in memory per connection, which can exhaust the server under load. Using pipeline and respecting drain keeps memory bounded.",
+      "tags": [
+        "node",
+        "streams",
+        "backpressure",
+        "sse"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None; correctness and memory safety."
+      ]
+    },
+    {
+      "deepDive": "Details: configuration module with validated env; provider abstraction behind an interface with per-mode allowlists; rate limiting per user and tenant; idempotency keys on write endpoints; queues for long runs; health checks; OpenAPI for typed clients; tests at service level with mocked providers.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a copilot server exposes POST /runs (plan), POST /runs/:id/approve, GET /runs/:id/events (SSE) and enforces risk classes in a ToolPolicyService.",
+      "followUps": [
+        "Where do you enforce per-tenant quotas?"
+      ],
+      "format": "subjective",
+      "id": "node-nest-architecture",
+      "intent": "Backend architecture with NestJS idioms.",
+      "mistakes": [
+        "Business logic in controllers.",
+        "Authorization scattered across tools."
+      ],
+      "question": "How would you structure a NestJS service that orchestrates LLM calls, tools and approvals?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Structure",
+          "strong": "Domain modules, thin controllers."
+        },
+        {
+          "criterion": "Cross-cutting",
+          "strong": "Guards, interceptors, pipes, filters."
+        },
+        {
+          "criterion": "Policy",
+          "strong": "Central tool enforcement and ledger."
+        }
+      ],
+      "sources": [
+        {
+          "title": "NestJS: guards",
+          "url": "https://docs.nestjs.com/guards"
+        },
+        {
+          "title": "NestJS: interceptors",
+          "url": "https://docs.nestjs.com/interceptors"
+        }
+      ],
+      "spokenAnswer": "Feature modules by domain — conversations, agent runs, tools, approvals, audit, model routing — with controllers kept thin and logic in services. Guards handle authentication and authorization, interceptors handle cross-cutting concerns like logging, timing and cost metrics, pipes validate DTOs, and exception filters map errors. Streaming endpoints use SSE. Tool execution goes through a single policy-enforcing service so no tool can be called without checks, and every run is persisted in an append-only ledger.",
+      "tags": [
+        "node",
+        "nestjs",
+        "architecture",
+        "agents"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Framework structure aids consistency but adds boilerplate."
+      ]
+    },
+    {
+      "deepDive": "With durable run ledgers, a client reconnecting to another instance resumes from the last event ID. Configure orchestrator termination grace periods to exceed your drain deadline. Test shutdown in CI or staging.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: deploys stopped breaking agent runs once SSE clients reconnected with Last-Event-ID and the server replayed from the ledger.",
+      "followUps": [
+        "How does Last-Event-ID work?"
+      ],
+      "format": "subjective",
+      "id": "node-graceful-shutdown",
+      "intent": "Operational maturity.",
+      "mistakes": [
+        "process.exit() immediately on SIGTERM.",
+        "No reconnection strategy for streams."
+      ],
+      "question": "How do you implement graceful shutdown for a Node service that holds long-lived streaming connections?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Steps",
+          "strong": "Stop accepting, drain, persist, close, exit."
+        },
+        {
+          "criterion": "Streams",
+          "strong": "Reconnect strategy."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: Server-sent events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        }
+      ],
+      "spokenAnswer": "On SIGTERM I stop accepting new connections, mark the instance unhealthy so the load balancer drains it, let in-flight requests finish within a deadline, tell streaming clients to reconnect (for SSE, a final event and close), persist any run state, close database and queue connections, then exit. If the deadline passes, remaining connections are closed forcibly.",
+      "tags": [
+        "node",
+        "operations",
+        "sse"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Longer drains slow deploys."
+      ]
+    },
+    {
+      "deepDive": "Also: separate quotas for interactive vs batch; priority for paid tiers; global circuit breaker on provider errors; cost accounting from actual token usage after each call; alerts on anomalies; protect unauthenticated endpoints harder.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: per-tenant daily cost caps plus per-user concurrency of two streams stopped a runaway script from exhausting a shared budget.",
+      "followUps": [
+        "How do you rate-limit tokens you cannot know before the call completes?"
+      ],
+      "format": "subjective",
+      "id": "node-rate-limit",
+      "intent": "Protecting cost and fairness.",
+      "mistakes": [
+        "In-memory limits on multiple instances.",
+        "Only request-count limits, no cost budgets."
+      ],
+      "question": "Design rate limiting for an API that proxies expensive LLM calls.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Levels",
+          "strong": "User/tenant/concurrency/cost."
+        },
+        {
+          "criterion": "Mechanics",
+          "strong": "Shared store, algorithm, 429s."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Limit at several levels: per user and per tenant requests per minute, concurrent streams per user, and token or cost budgets per day. Use a shared store such as Redis with a token-bucket or sliding-window algorithm so limits hold across instances. Return clear 429 responses with retry information, and let the UI show remaining budget.",
+      "tags": [
+        "node",
+        "rate limiting",
+        "cost"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Strict limits protect cost but can frustrate legitimate heavy users."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "The promise callback",
+        "process.nextTick",
+        "They interleave randomly",
+        "Neither until the next I/O"
+      ],
+      "deepDive": "Node processes the nextTick queue, then the promise microtask queue, before continuing the event loop.",
+      "difficulty": "intermediate",
+      "example": "Overusing nextTick can starve I/O.",
+      "followUps": [
+        "What is setImmediate for?"
+      ],
+      "format": "objective",
+      "id": "node-nexttick-objective",
+      "intent": "Objective Node event-loop detail.",
+      "mistakes": [
+        "Using nextTick recursively."
+      ],
+      "question": "In Node.js, which runs first after the current operation: a process.nextTick callback or a resolved promise callback?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "nextTick first."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Node.js: event loop, timers and nextTick",
+          "url": "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick"
+        }
+      ],
+      "spokenAnswer": "process.nextTick callbacks run before promise microtasks.",
+      "tags": [
+        "node",
+        "event loop"
+      ],
+      "topic": "Node.js",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Key points: test behaviour not implementation (query by role and label); contract tests or typed clients between frontend and backend; mock at network boundaries with fixtures; deterministic time and randomness; accessibility automation (axe) plus manual checks; performance budgets; e2e tests in production-like builds; ownership of failing tests.",
+      "difficulty": "senior",
+      "example": "This project runs Vitest for core logic and Playwright for critical flows (local mode, persistence, keyboard navigation, deep links) against a production build.",
+      "followUps": [
+        "How do you keep e2e tests stable?"
+      ],
+      "format": "subjective",
+      "id": "test-strategy-frontend",
+      "intent": "Balanced, risk-based testing leadership.",
+      "mistakes": [
+        "Inverted pyramid of slow e2e tests.",
+        "Snapshot tests of entire pages."
+      ],
+      "question": "What testing strategy would you set for a large frontend platform?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Layers",
+          "strong": "Unit/component/e2e balance."
+        },
+        {
+          "criterion": "Practices",
+          "strong": "Behaviour-focused, deterministic."
+        },
+        {
+          "criterion": "Governance",
+          "strong": "Flakiness and ownership."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Playwright: best practices",
+          "url": "https://playwright.dev/docs/best-practices"
+        }
+      ],
+      "spokenAnswer": "Many fast tests on logic — pure functions, reducers, services, data transformations; a good layer of component tests for behaviour from the user's perspective; a small number of end-to-end tests for critical journeys; plus static checks — types, lint — and visual or accessibility checks where they pay off. Tests run in CI on every change, flaky tests are treated as bugs, and coverage targets are about risk, not a vanity percentage.",
+      "tags": [
+        "testing",
+        "strategy"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "More e2e coverage catches integration bugs but slows CI and increases flakiness."
+      ]
+    },
+    {
+      "deepDive": "Process: quarantine with an owner and deadline (not forever), track flake rate per test, make retries visible rather than silent, run suspicious tests repeatedly to reproduce, and fix in priority order. Some flakes are real product bugs users also hit.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a \"save then reload\" test flaked because the test reloaded before an IndexedDB transaction committed; waiting for the sync indicator to show \"pending\" fixed it — and revealed the UI needed that indicator anyway.",
+      "followUps": [
+        "What is a web-first assertion?"
+      ],
+      "format": "subjective",
+      "id": "test-flaky-e2e",
+      "intent": "Root-cause flaky tests rather than retry.",
+      "mistakes": [
+        "Adding sleeps.",
+        "Blanket retries that hide failures."
+      ],
+      "question": "Your end-to-end suite fails randomly 5% of the time. How do you fix it?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Diagnosis",
+          "strong": "Data-driven grouping."
+        },
+        {
+          "criterion": "Causes",
+          "strong": "Waits, data, external deps, races."
+        },
+        {
+          "criterion": "Process",
+          "strong": "Time-boxed quarantine, ownership."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Playwright: best practices",
+          "url": "https://playwright.dev/docs/best-practices"
+        }
+      ],
+      "spokenAnswer": "I treat flakiness as a bug. I collect failure data — traces, screenshots, videos — and group failures by test and step. Usual causes: waiting on fixed timeouts instead of conditions, shared test data between parallel tests, dependence on real external services or time, animations, and race conditions in the app itself. Fixes: web-first assertions that wait for state, isolated data per test, mocked network at the boundary, controlled clocks, and fixing real app races when found.",
+      "tags": [
+        "testing",
+        "e2e",
+        "flakiness"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Quarantine keeps CI green but can hide regressions if not time-boxed."
+      ]
+    },
+    {
+      "deepDive": "Build a fake provider with configurable chunk timing and failure injection; record-and-replay real responses for integration tests; assert on structure (citations rendered, approval dialog shown, stop button works) rather than exact text; contract tests for the streaming protocol; clearly label mock behaviour in demos.",
+      "difficulty": "senior",
+      "example": "Portfolio project 1 in this repository uses a mocked provider that streams fixture tokens and emits a tool-approval request, so Playwright can test stop, retry and approve deterministically.",
+      "followUps": [
+        "How do you keep mocks in sync with the real API?"
+      ],
+      "format": "subjective",
+      "id": "test-llm-features",
+      "intent": "Determinism for AI features.",
+      "mistakes": [
+        "Calling the real API in every CI run.",
+        "Asserting exact model text."
+      ],
+      "question": "How do you test a frontend feature that depends on an LLM without making tests slow, flaky or expensive?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Separation",
+          "strong": "UI behaviour vs model quality."
+        },
+        {
+          "criterion": "Mocks",
+          "strong": "Scripted streams with failures."
+        },
+        {
+          "criterion": "Evals",
+          "strong": "Quality tested separately."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Separate the model from the UI behaviour. In unit and component tests the model is replaced by a deterministic mock that emits scripted streams — normal reply, slow tokens, tool-call request, error mid-stream, cancellation — so I can test rendering, approval flows, error states and cancellation reliably. Model quality is tested separately in an eval suite with real calls, run on relevant changes, not on every UI test.",
+      "tags": [
+        "testing",
+        "llm",
+        "mocks",
+        "streaming"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Mocks can drift from real provider behaviour; replay tests and contract checks reduce that."
+      ]
+    },
+    {
+      "deepDive": "Options: schema-first with codegen; consumer-driven contract tests; runtime validation with safe fallbacks in production and hard failures in tests; deprecation policy; feature flags for coordinated releases.",
+      "difficulty": "intermediate",
+      "example": "This project shares Zod schemas between the browser app and the CLI and workflows, so all writers validate the same contract.",
+      "followUps": [
+        "How would you evolve a field without breaking old clients?"
+      ],
+      "format": "subjective",
+      "id": "test-contract",
+      "intent": "Integration safety.",
+      "mistakes": [
+        "Hand-written duplicate interfaces on each side."
+      ],
+      "question": "How do you prevent frontend and backend from drifting apart on API contracts?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Artifact",
+          "strong": "Shared schema/types."
+        },
+        {
+          "criterion": "Enforcement",
+          "strong": "CI breaking-change checks and runtime validation."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Make the contract a shared, versioned artifact: an OpenAPI schema or shared TypeScript/Zod schemas from which the client is generated or typed, and validate responses at runtime at the boundary. CI checks for breaking changes, and contract tests verify the backend still satisfies what the frontend relies on. Breaking changes go through versioning or additive evolution.",
+      "tags": [
+        "testing",
+        "contracts",
+        "api"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Codegen adds build steps but removes manual drift."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "They are too fast.",
+        "They break on incidental changes and get updated without review.",
+        "They cannot run in CI.",
+        "They require a real browser."
+      ],
+      "deepDive": "Prefer targeted assertions on behaviour and small, stable snapshots for serialised output.",
+      "difficulty": "foundation",
+      "example": "Replacing page snapshots with role-based assertions reduced churn.",
+      "followUps": [
+        "When are snapshots useful?"
+      ],
+      "format": "objective",
+      "id": "test-snapshot-objective",
+      "intent": "Objective test-quality check.",
+      "mistakes": [
+        "Blindly updating snapshots."
+      ],
+      "question": "Which is the main risk of large snapshot tests of whole pages?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Brittle, low-signal tests."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "They break on any incidental change, so developers update them without reading, and they rarely express the behaviour that matters.",
+      "tags": [
+        "testing"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Everything in WCAG.",
+        "Many machine-detectable issues, but not interaction quality, focus order or meaningful announcements.",
+        "Nothing useful.",
+        "Only colour contrast."
+      ],
+      "deepDive": "Automation covers a subset of WCAG success criteria; usability with keyboards and screen readers needs humans.",
+      "difficulty": "intermediate",
+      "example": "Axe passed, but a dialog trapped focus incorrectly — found only with keyboard testing.",
+      "followUps": [
+        "What manual checks would you always do?"
+      ],
+      "format": "objective",
+      "id": "test-a11y-automation-objective",
+      "intent": "Objective a11y testing realism.",
+      "mistakes": [
+        "Treating a green axe run as compliance."
+      ],
+      "question": "What can automated accessibility checkers (like axe) reliably catch, and what not?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Subset coverage; manual needed."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "WCAG 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/"
+        }
+      ],
+      "spokenAnswer": "They reliably catch many machine-detectable issues — missing labels, invalid ARIA, contrast in many cases — but not whether focus order, keyboard interaction, announcements and content make sense; manual and assistive-technology testing remain necessary.",
+      "tags": [
+        "accessibility",
+        "testing"
+      ],
+      "topic": "Testing",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Costs: shared dependency versioning, bundle duplication, runtime integration (module federation, iframes, web components), routing and state sharing, design consistency, end-to-end testing, observability across apps. Prerequisites: design system, contracts, platform team, performance budgets. Start with modular monolith; extract only where deployment independence is proven necessary.",
+      "difficulty": "staff",
+      "example": "Hypothetical: a retailer portal and supplier portal share a design system and libraries but deploy independently as separate apps — not micro-frontends inside one page — which met the need with less complexity.",
+      "followUps": [
+        "How do you share authentication across micro-frontends?"
+      ],
+      "format": "subjective",
+      "id": "arch-micro-frontends",
+      "intent": "Architecture trade-off maturity.",
+      "mistakes": [
+        "Adopting micro-frontends to fix unclear ownership.",
+        "Ignoring bundle duplication."
+      ],
+      "question": "When are micro-frontends worth it, and when are they a mistake?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Criteria",
+          "strong": "Deployment independence and team topology."
+        },
+        {
+          "criterion": "Costs",
+          "strong": "Runtime, consistency, testing."
+        },
+        {
+          "criterion": "Alternative",
+          "strong": "Modular monolith/monorepo."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "They are worth it when independent teams need to deploy separately on different release cycles, own distinct business domains, and the organisation can afford the platform work. They are a mistake when the real problem is code organisation — a well-structured monorepo with enforced boundaries gives most of the benefits without runtime composition costs, duplicated dependencies and cross-app UX inconsistencies.",
+      "tags": [
+        "architecture",
+        "micro-frontends"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Team autonomy versus runtime and consistency costs."
+      ]
+    },
+    {
+      "deepDive": "Layers: design tokens (colour, spacing, typography, motion) consumed by multiple frameworks; primitive components; composite patterns (data grid wrappers, form layouts, AI interaction patterns such as streaming message, approval card, citation chip); documentation with do/don't; deprecation policy; office hours.",
+      "difficulty": "senior",
+      "example": "Hypothetical: adding an \"approval card\" pattern to the system made every product's AI agent present data-changing plans consistently.",
+      "followUps": [
+        "How would you measure adoption?"
+      ],
+      "format": "subjective",
+      "id": "arch-design-system",
+      "intent": "Governance plus engineering.",
+      "mistakes": [
+        "A component library without governance or docs.",
+        "Breaking changes without migration paths."
+      ],
+      "question": "How do you run a design system across many product teams?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Model",
+          "strong": "Product mindset, ownership, contribution."
+        },
+        {
+          "criterion": "Quality",
+          "strong": "Accessibility, testing, versioning."
+        },
+        {
+          "criterion": "Adoption",
+          "strong": "Migrations and metrics."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Treat it as a product: a small core team owns tokens, components and documentation; product teams are customers and contributors. Components are accessible by default, versioned with semantic versioning and changelogs, tested visually and for accessibility, and adopted through clear migration guides and codemods. Usage is measured, and a contribution process lets teams add patterns without the core team becoming a bottleneck.",
+      "tags": [
+        "design system",
+        "governance",
+        "architecture"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Consistency versus team speed and flexibility."
+      ]
+    },
+    {
+      "deepDive": "Signals of trouble: duplicated server data in stores, manual cache invalidation bugs, components coupled through global state. Tools: Angular signals and services, RxJS for async; in React, query libraries for server state and context/reducers locally. For offline-capable apps, a local persistent store (IndexedDB) with an explicit sync layer, as in this project.",
+      "difficulty": "senior",
+      "example": "This app keeps records in an IndexedDB working copy with explicit sync status, route state in the URL hash, and per-page UI state locally.",
+      "followUps": [
+        "How do you handle optimistic updates?"
+      ],
+      "format": "subjective",
+      "id": "arch-state-management",
+      "intent": "State-design clarity.",
+      "mistakes": [
+        "Putting everything in a global store.",
+        "Caching server data without invalidation."
+      ],
+      "question": "How do you decide where state lives in a complex frontend?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Taxonomy",
+          "strong": "Server, URL, local, global."
+        },
+        {
+          "criterion": "Placement",
+          "strong": "Right tool per kind."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "By kind of state. Server state — data owned by the backend — lives in a caching layer with refetching and invalidation rather than in a hand-rolled global store. URL state — filters, selected tab, IDs — lives in the route so links and back buttons work. Form and UI state stays local to components. Only truly global client state — session, feature flags, a few preferences — goes into a global store. Most apps need far less global state than they have.",
+      "tags": [
+        "state management",
+        "architecture"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Centralisation helps debugging; locality reduces coupling."
+      ]
+    },
+    {
+      "deepDive": "Tactics: route-level code splitting, image optimisation, avoiding heavy dependencies, preloading critical resources, virtualisation for long lists, reducing main-thread work for INP. Track regressions per release; tie performance to product metrics where possible.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a bundle-size check per lazy route caught a charting library accidentally imported into the main bundle.",
+      "followUps": [
+        "How would you improve INP on a data-heavy screen?"
+      ],
+      "format": "subjective",
+      "id": "arch-performance-budgets",
+      "intent": "Measurable performance governance.",
+      "mistakes": [
+        "Only lab measurements.",
+        "Budgets without ownership."
+      ],
+      "question": "How do you set and enforce frontend performance budgets?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Metrics",
+          "strong": "CWV and resource budgets."
+        },
+        {
+          "criterion": "Enforcement",
+          "strong": "CI and RUM."
+        },
+        {
+          "criterion": "Ownership",
+          "strong": "Owners and dashboards."
+        }
+      ],
+      "sources": [
+        {
+          "title": "web.dev: Web Vitals",
+          "url": "https://web.dev/articles/vitals"
+        }
+      ],
+      "spokenAnswer": "Pick user-centred metrics — Core Web Vitals such as LCP, INP and CLS — and resource budgets like JavaScript size per route. Set targets based on field data and business importance, measure in CI with lab tests and in production with real-user monitoring, and fail or warn the build when budgets are exceeded. Each budget has an owner and a dashboard.",
+      "tags": [
+        "performance",
+        "web vitals",
+        "architecture"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Strict budgets slow feature work slightly; they prevent slow decay."
+      ]
+    },
+    {
+      "deepDive": "Plan: inventory and dependency map; characterisation tests for legacy behaviour; integration approach (route-level split, iframes, web components, or hybrid bootstrapping); data/API layer modernised first if possible; feature freeze on legacy except fixes; clear done definition per slice; communicate progress to stakeholders. Avoid a big-bang rewrite.",
+      "difficulty": "staff",
+      "example": "Hypothetical: a legacy PIM client stayed for rarely-changed admin screens while high-traffic mapping and submission screens moved first.",
+      "followUps": [
+        "How do you keep UX consistent across two stacks?"
+      ],
+      "format": "subjective",
+      "id": "arch-legacy-migration",
+      "intent": "Strangler-pattern leadership.",
+      "mistakes": [
+        "Big-bang rewrite with no releases for a year.",
+        "Migrating rarely used screens first."
+      ],
+      "question": "How would you migrate a legacy frontend (e.g., an old Grunt/Bower or AngularJS app) to a modern stack while shipping features?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Approach",
+          "strong": "Strangler, prioritised slices."
+        },
+        {
+          "criterion": "Safety",
+          "strong": "Characterisation tests, bridges."
+        },
+        {
+          "criterion": "Leadership",
+          "strong": "Communication and done criteria."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Incrementally with the strangler pattern: put a shell or router in front, build new screens in the modern stack, and move existing screens one by one, prioritised by business value and change frequency. Shared concerns — authentication, navigation, design tokens — are bridged so users see one product. Each migrated slice is shipped and measured, and the legacy part shrinks until it can be removed.",
+      "tags": [
+        "migration",
+        "legacy",
+        "architecture",
+        "leadership"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Incremental migration carries two stacks for a while."
+      ]
+    },
+    {
+      "deepDive": "Practices: server-evaluated flags for security-relevant capabilities (never trust client-only flags for authorization), audit flag changes, default-off for new risky features, cleanup tickets, testing both flag states in CI for critical flows.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: an agent feature enabled by flag from development to production environments as an enterprise pilot, with write actions flagged separately.",
+      "followUps": [
+        "How do you test combinations of flags?"
+      ],
+      "format": "subjective",
+      "id": "arch-feature-flags",
+      "intent": "Release engineering for risky features.",
+      "mistakes": [
+        "Client-side-only flags guarding server capabilities.",
+        "Flags that never get removed."
+      ],
+      "question": "How do you use feature flags safely for rolling out an AI feature to enterprise customers?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Rollout",
+          "strong": "Cohorts, gradual, kill switch."
+        },
+        {
+          "criterion": "Security",
+          "strong": "Server-side evaluation."
+        },
+        {
+          "criterion": "Hygiene",
+          "strong": "Ownership and cleanup."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Flags let me enable the feature per environment, tenant and user cohort, roll out gradually, and turn it off instantly if something goes wrong. For AI features I add separate flags for risky capabilities — for example Ask on, Agent write actions off — monitor quality, cost and errors per cohort, and keep a kill switch that does not require a deploy. Flags have owners and expiry dates so they do not accumulate forever.",
+      "tags": [
+        "feature flags",
+        "rollout",
+        "ai"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Flexibility versus configuration complexity and flag debt."
+      ]
+    },
+    {
+      "deepDive": "Risks: duplicating business logic, another deployable to operate, latency of an extra hop. Keep BFFs thin and UI-specific; keep domain logic in services. For static personal apps without a backend — like this project — there is no BFF, so the design limits what runs in the browser (no AI keys, scoped GitHub token in memory).",
+      "difficulty": "senior",
+      "example": "Hypothetical: a BFF merges submission data from three services and streams copilot answers via SSE, holding the provider keys server-side.",
+      "followUps": [
+        "How do you prevent BFFs from becoming mini-monoliths?"
+      ],
+      "format": "subjective",
+      "id": "arch-bff",
+      "intent": "Boundary design.",
+      "mistakes": [
+        "Putting provider API keys in the browser to avoid building a BFF."
+      ],
+      "question": "When would you introduce a backend-for-frontend (BFF) for an AI-enabled web app?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Triggers",
+          "strong": "Aggregation, secrets, policy, streaming."
+        },
+        {
+          "criterion": "Risks",
+          "strong": "Duplication and overhead."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "When the frontend needs to aggregate several services, hide secrets such as model API keys, enforce per-user policy and quotas, shape data for the UI, or stream model output — things the browser must not or cannot do itself. A BFF owned by the frontend team keeps those concerns close to the UI while core services stay generic.",
+      "tags": [
+        "bff",
+        "architecture",
+        "security"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Control and security versus operational overhead."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Last write wins silently.",
+        "Detect via revisions, merge independent fields, surface same-field conflicts for the user.",
+        "Reject all edits from the second device.",
+        "Duplicate the record."
+      ],
+      "deepDive": "Three-way merge against the common base distinguishes independent changes from true conflicts.",
+      "difficulty": "senior",
+      "example": "This app's sync engine does exactly this, with a conflict UI per field.",
+      "followUps": [
+        "How do tombstones prevent resurrected deletes?"
+      ],
+      "format": "objective",
+      "id": "arch-offline-sync-objective",
+      "intent": "Objective sync-design check.",
+      "mistakes": [
+        "Last-write-wins on whole records."
+      ],
+      "question": "A static web app stores user edits in IndexedDB and syncs to a Git repository. Two devices edit the same record field. What should happen?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Detect, merge, surface conflicts."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Detect the divergence with a revision check, merge independent field edits automatically, and surface same-field conflicts for explicit user resolution — never silently overwrite either side.",
+      "tags": [
+        "sync",
+        "offline",
+        "architecture"
+      ],
+      "topic": "Frontend architecture",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Manual resolution costs user effort."
+      ]
+    },
+    {
+      "deepDive": "Considerations: EventSource only supports GET and no custom headers; reconnection semantics (Last-Event-ID) come built-in with EventSource but must be implemented with fetch; proxies and compression can buffer streams; HTTP/2 multiplexing reduces SSE connection-limit issues; WebSockets need their own auth, heartbeats and scaling story.",
+      "difficulty": "intermediate",
+      "example": "A chat endpoint: POST /chat returns text/event-stream with events token, tool_call, citation, done, error; the client parses events and renders a discriminated-union state.",
+      "followUps": [
+        "How do you resume a stream after a network drop?"
+      ],
+      "format": "subjective",
+      "id": "ux-streaming-transport",
+      "intent": "Transport trade-offs for AI UIs.",
+      "mistakes": [
+        "Choosing WebSockets by default for one-way streams.",
+        "Forgetting proxy buffering."
+      ],
+      "question": "SSE, WebSockets or fetch streaming: how do you choose a transport for streaming AI responses?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Options",
+          "strong": "Accurate comparison."
+        },
+        {
+          "criterion": "Choice",
+          "strong": "Justified default."
+        },
+        {
+          "criterion": "Details",
+          "strong": "Auth, reconnection, buffering."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: Server-sent events",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        }
+      ],
+      "spokenAnswer": "For server-to-client token streams, SSE or a streamed fetch response is usually enough: simple HTTP, works through most infrastructure, easy auth with normal requests, and natural request/response semantics per message. WebSockets make sense when you need true bidirectional, low-latency messaging on one connection — collaborative sessions, voice, or many concurrent server pushes. I default to fetch-based streaming with an SSE-style format because it supports POST bodies and headers and cancels cleanly with AbortController.",
+      "tags": [
+        "streaming",
+        "sse",
+        "websockets",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Simplicity of SSE/fetch versus flexibility of WebSockets."
+      ]
+    },
+    {
+      "deepDive": "Details: render partial markdown safely as it arrives; avoid layout jumps (reserve space, smooth scroll only if the user is at the bottom); show tool progress labels; keep partial output on cancel with a \"stopped\" marker; distinguish network error vs model refusal vs rate limit with specific copy; allow copy and regenerate; persist conversation so reloads do not lose answers; telemetry per state.",
+      "difficulty": "senior",
+      "example": "Portfolio project 1 implements this state machine with a mocked provider: token, tool_call, approval_required, citation, done, error events.",
+      "followUps": [
+        "How do you handle a user scrolling up during streaming?"
+      ],
+      "format": "subjective",
+      "id": "ux-streaming-states",
+      "intent": "Complete state modelling for AI UX.",
+      "mistakes": [
+        "A single \"loading\" boolean.",
+        "Announcing every token to screen readers.",
+        "Losing partial output on stop."
+      ],
+      "question": "Design the UI states for a streaming assistant response, including tools, errors and cancellation.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "States",
+          "strong": "Comprehensive explicit states."
+        },
+        {
+          "criterion": "UX details",
+          "strong": "Stop, partial, errors, scroll."
+        },
+        {
+          "criterion": "Accessibility",
+          "strong": "Announcements strategy."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: ARIA live regions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions"
+        }
+      ],
+      "spokenAnswer": "I model explicit states: idle, submitting, streaming text, waiting for a tool — with what it is doing — awaiting user approval for a tool call, done with citations, cancelled by the user with the partial text kept, and error with a retry when retryable. Each state has a clear visual treatment, the stop button is available while generating, the input stays usable, and screen readers get concise announcements rather than every token.",
+      "tags": [
+        "streaming",
+        "state machines",
+        "ai ux",
+        "accessibility"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "More states mean more design work; they prevent confusing behaviour."
+      ]
+    },
+    {
+      "deepDive": "Patterns: diff-style previews for edits; grouping of similar steps with expand; risk labels (read vs write vs external send); \"approve once\" versus \"always allow this read-only tool\" scoped narrowly; record who approved and when; handle expired approvals gracefully; never let model-generated text impersonate system UI (render it in a distinct, labelled region).",
+      "difficulty": "senior",
+      "example": "Hypothetical: a plan card lists \"Open submission S-102 → Find SKU 4471 → Publish (data change)\" with the publish step highlighted and a single Approve plan button.",
+      "followUps": [
+        "How would you design \"always allow\" safely?"
+      ],
+      "format": "subjective",
+      "id": "ux-tool-approval",
+      "intent": "Trustworthy, accessible approval UX.",
+      "mistakes": [
+        "Approve as the only highlighted button.",
+        "Model text styled like system warnings."
+      ],
+      "question": "How should a tool-approval dialog for an AI agent be designed?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Clarity",
+          "strong": "Consequence-first content."
+        },
+        {
+          "criterion": "Safety",
+          "strong": "No dark patterns; scoped permissions."
+        },
+        {
+          "criterion": "Accessibility",
+          "strong": "Keyboard and SR support."
+        }
+      ],
+      "sources": [
+        {
+          "title": "WAI-ARIA Authoring Practices Guide",
+          "url": "https://www.w3.org/WAI/ARIA/apg/"
+        }
+      ],
+      "spokenAnswer": "It must make the consequence obvious before the user agrees: what action, on which records, with which values, and whether it can be undone — in plain language, with the technical details available on demand. Approve and reject are equally prominent, keyboard and screen-reader accessible, and the dialog never auto-approves on a timer. After approval, the UI shows progress and results per step, and a stop button remains available.",
+      "tags": [
+        "approvals",
+        "ai ux",
+        "accessibility"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Detailed previews take space; summaries risk hiding consequences."
+      ]
+    },
+    {
+      "deepDive": "Approaches: structured events per field from the server (field_started, field_value, done); tolerant partial-JSON parsing for previews; schema validation at completion; stable keys to avoid remounting fields; disable submit until valid; preserve user edits made during streaming (or lock the form until done).",
+      "difficulty": "senior",
+      "example": "Hypothetical: an extraction preview fills fields as they stream with a subtle \"drafting\" indicator; the Save button activates only after Zod validation passes.",
+      "followUps": [
+        "How do you reconcile user edits made during streaming?"
+      ],
+      "format": "subjective",
+      "id": "ux-partial-json",
+      "intent": "Robust incremental rendering.",
+      "mistakes": [
+        "JSON.parse on every chunk and throwing.",
+        "Saving partial objects."
+      ],
+      "question": "The model streams a JSON object that the UI renders as a form. How do you handle partial data?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Safety",
+          "strong": "No side effects before validation."
+        },
+        {
+          "criterion": "Technique",
+          "strong": "Events or tolerant parsing."
+        },
+        {
+          "criterion": "UX",
+          "strong": "Provisional states clearly marked."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Never act on incomplete JSON. Either stream text and parse only completed events, or use a tolerant incremental parser to show a provisional preview, clearly marked as in progress, while the final object is validated against the schema once complete. Side effects and saves happen only after successful validation; on failure I show the error and allow a retry.",
+      "tags": [
+        "streaming",
+        "json",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Live previews feel fast but add complexity and edge cases."
+      ]
+    },
+    {
+      "deepDive": "Map backend error classes to UI copy; never show raw stack traces or model internals; automatic retry only for transient, idempotent operations with a visible indicator; for agent runs, show the run ledger so partial completion is clear; log errors with correlation IDs.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: \"Publishing SKU 4471 failed: permission denied. Nothing was changed. Ask an admin for publish rights or remove this step.\"",
+      "followUps": [
+        "How do you design error copy for agent runs?"
+      ],
+      "format": "subjective",
+      "id": "ux-errors-retries",
+      "intent": "Error UX specificity.",
+      "mistakes": [
+        "Generic \"Something went wrong\".",
+        "Silent retries that duplicate actions."
+      ],
+      "question": "How should an AI interface communicate different failures to users?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Specificity",
+          "strong": "Different copy per class."
+        },
+        {
+          "criterion": "Data clarity",
+          "strong": "Says what changed."
+        },
+        {
+          "criterion": "Recovery",
+          "strong": "Actionable next steps."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Specifically and actionably. A network drop says the connection was lost and offers retry, keeping the partial answer. A rate limit says how long to wait. A refusal or safety block explains that the assistant cannot help with that request without pretending it is a bug. A tool failure says which step failed and what was or was not changed. Unknown errors give a reference ID for support. The user should always know whether anything happened to their data.",
+      "tags": [
+        "errors",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Specific messages require backend error taxonomy."
+      ]
+    },
+    {
+      "deepDive": "Details: numbered chips with accessible names; a sources panel; highlight the cited span in the source view; mark outdated sources; respect permissions; feedback buttons that capture the answer, sources and prompt version for eval datasets.",
+      "difficulty": "intermediate",
+      "example": "This app avoids invented readiness percentages and labels every score as heuristic, applying the same principle to its own UI.",
+      "followUps": [
+        "How would you visualise disagreement between sources?"
+      ],
+      "format": "subjective",
+      "id": "ux-citations-trust",
+      "intent": "Grounded-UX design.",
+      "mistakes": [
+        "Uncalibrated confidence numbers.",
+        "Citations that link only to a document homepage."
+      ],
+      "question": "How do you design citations and trust signals in an AI answer UI?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Placement",
+          "strong": "Inline, passage-level."
+        },
+        {
+          "criterion": "Honesty",
+          "strong": "No fake precision; unsupported marked."
+        },
+        {
+          "criterion": "Feedback",
+          "strong": "Report loop to evals."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Citations appear inline next to the claims they support, open the exact source passage, and show the source title and date on hover or focus. Answers without support are visually marked. I avoid fake precision like confidence percentages that are not calibrated; instead I show what the answer is based on and make it easy to report a wrong answer.",
+      "tags": [
+        "citations",
+        "trust",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Transparency adds UI density."
+      ]
+    },
+    {
+      "deepDive": "Techniques: optimistic UI for safe actions; skeletons shaped like the final content; staged reveal (outline first); background jobs with resumable views; avoid blocking modals; remember that a stop button reduces anxiety.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a \"prepare interview pack\" action becomes a background task with a progress list and a toast when the pack is ready.",
+      "followUps": [
+        "When should a task move to the background?"
+      ],
+      "format": "subjective",
+      "id": "ux-latency-perception",
+      "intent": "Perceived performance design.",
+      "mistakes": [
+        "Indeterminate spinner for 10 seconds.",
+        "Blocking the whole page."
+      ],
+      "question": "How do you make a 10-second AI operation feel acceptable?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Feedback",
+          "strong": "Immediate, meaningful progress."
+        },
+        {
+          "criterion": "Control",
+          "strong": "Cancel and continue working."
+        },
+        {
+          "criterion": "Backgrounding",
+          "strong": "Long tasks handled asynchronously."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Show progress immediately and make it meaningful: stream partial results, display the step the system is on — searching, reading three documents, drafting — and let the user keep working or cancel. Set expectations for longer tasks, and for multi-minute agent runs, move them to the background with a notification when done. Meanwhile, reduce actual latency where possible.",
+      "tags": [
+        "latency",
+        "ai ux",
+        "performance"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Progress UI requires backend progress events."
+      ]
+    },
+    {
+      "deepDive": "Implementation: command pattern with compensating actions; versioned records or soft deletes; time windows for undo; conflict detection if someone else edited after the agent; clear messaging when only partial undo is possible.",
+      "difficulty": "senior",
+      "example": "Hypothetical: mapping changes are versioned, so \"undo run\" restores the previous mapping version and records an undo event in the ledger.",
+      "followUps": [
+        "How do you undo when another user edited the record after the agent?"
+      ],
+      "format": "subjective",
+      "id": "ux-undo-agent",
+      "intent": "Reversibility design.",
+      "mistakes": [
+        "Promising undo for irreversible external effects."
+      ],
+      "question": "An agent performed five changes and the user wants to undo them. How do you design for that?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Design",
+          "strong": "Before-state, compensation, grouping."
+        },
+        {
+          "criterion": "Honesty",
+          "strong": "Irreversible actions flagged."
+        },
+        {
+          "criterion": "Conflicts",
+          "strong": "Handles later edits."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Design for reversibility from the start: each action records enough before-state to compensate, actions are grouped per run, and the UI offers \"undo this run\" or per-step undo where safe. Some actions cannot be undone — sending an email, publishing externally — so those are flagged before approval as irreversible and require stronger confirmation. Undo itself is an audited action.",
+      "tags": [
+        "undo",
+        "agents",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Reversibility adds storage and complexity."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Show an error and clear the answer.",
+        "Abort upstream, keep partial text marked stopped, return to ready.",
+        "Ignore the click until done.",
+        "Reload the page."
+      ],
+      "deepDive": "Cancellation is a user choice, not a failure: abort the fetch with AbortController, make the server stop generating so tokens are not wasted, and render the stopped state distinctly from errors.",
+      "difficulty": "foundation",
+      "example": "A \"Stopped\" label under the partial answer with a Regenerate button.",
+      "followUps": [
+        "Should cancelled replies count in history?"
+      ],
+      "format": "objective",
+      "id": "ux-cancel-objective",
+      "intent": "Objective cancellation UX.",
+      "mistakes": [
+        "Error toast on cancel.",
+        "Discarding partial text."
+      ],
+      "question": "The user presses Stop while a reply streams. What is the best behaviour?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Abort, keep partial, ready state."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: AbortController",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
+        }
+      ],
+      "spokenAnswer": "Abort the request (and upstream generation), keep the partial text visibly marked as stopped, return the UI to a ready state, and do not show it as an error.",
+      "tags": [
+        "cancellation",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Silently retry every 100 ms.",
+        "Explain the limit, show a countdown and keep the input.",
+        "Log the user out.",
+        "Show \"Unknown error\"."
+      ],
+      "deepDive": "Specific, honest messaging preserves trust and avoids extra load.",
+      "difficulty": "foundation",
+      "example": "\"You've reached the limit for now. Try again in 20 s.\" with the prompt preserved.",
+      "followUps": [
+        "Would you queue the request automatically?"
+      ],
+      "format": "objective",
+      "id": "ux-rate-limit-objective",
+      "intent": "Objective error UX.",
+      "mistakes": [
+        "Generic error; losing the user's prompt."
+      ],
+      "question": "The API returns a rate-limit error with a retry-after of 20 seconds. What should the UI do?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Clear message, countdown, input kept."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Tell the user plainly that they hit a usage limit, show when they can retry (countdown), keep their input, and avoid automatic tight retries.",
+      "tags": [
+        "rate limits",
+        "ai ux"
+      ],
+      "topic": "AI UX & streaming interfaces",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Details: role=\"log\" or a list for the transcript; one polite status region for progress; assertive only for urgent errors; avoid moving focus to new messages automatically unless the user requests; headings or landmarks to navigate messages; respect reduced-motion preferences for typing animations.",
+      "difficulty": "senior",
+      "example": "This app uses a polite status region for toasts and never announces token-by-token updates.",
+      "followUps": [
+        "When would you use assertive announcements?"
+      ],
+      "format": "subjective",
+      "id": "a11y-live-regions",
+      "intent": "Accessible dynamic content.",
+      "mistakes": [
+        "aria-live on the streaming text container.",
+        "Stealing focus on every message."
+      ],
+      "question": "How do you make a streaming chat response accessible to screen-reader users?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Strategy",
+          "strong": "State announcements, not tokens."
+        },
+        {
+          "criterion": "Semantics",
+          "strong": "Live region and transcript roles."
+        },
+        {
+          "criterion": "Control",
+          "strong": "Focus and stop accessibility."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MDN: ARIA live regions",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions"
+        },
+        {
+          "title": "WCAG 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/"
+        }
+      ],
+      "spokenAnswer": "Do not announce every token; that floods the screen reader. I use a polite live region that announces state changes — \"assistant is responding\", \"response complete\", \"stopped\", errors — and, when the response completes, the final text is available in the transcript for the user to read at their own pace. Focus stays where the user is; the stop button is reachable by keyboard and labelled.",
+      "tags": [
+        "accessibility",
+        "live regions",
+        "streaming"
+      ],
+      "topic": "Accessibility",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "More announcements give awareness but cause noise."
+      ]
+    },
+    {
+      "deepDive": "Also: preserve scroll appropriately; avoid focus loss when lists re-render; manage focus in dialogs (move in, trap, return on close — the native dialog element helps); visible focus styles; test with keyboard and at least one screen reader.",
+      "difficulty": "intermediate",
+      "example": "This app focuses the main region on route changes, provides a skip link, and uses the native dialog element for modals.",
+      "followUps": [
+        "How do you test focus management automatically?"
+      ],
+      "format": "subjective",
+      "id": "a11y-spa-focus",
+      "intent": "SPA navigation accessibility.",
+      "mistakes": [
+        "Removing focus outlines.",
+        "Not returning focus after closing dialogs."
+      ],
+      "question": "What accessibility problems do single-page-app route changes cause, and how do you fix them?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Problems",
+          "strong": "Silent changes and lost focus."
+        },
+        {
+          "criterion": "Fixes",
+          "strong": "Focus main/heading, titles, skip link, dialogs."
+        }
+      ],
+      "sources": [
+        {
+          "title": "WCAG 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/"
+        },
+        {
+          "title": "WAI-ARIA Authoring Practices Guide",
+          "url": "https://www.w3.org/WAI/ARIA/apg/"
+        }
+      ],
+      "spokenAnswer": "When the URL changes without a page load, screen readers are not told that new content appeared, and focus may stay on a link that no longer exists. After navigation I move focus to the main content or the page heading, update the document title, and announce the new page if needed. A skip link lets keyboard users bypass navigation.",
+      "tags": [
+        "accessibility",
+        "spa",
+        "focus"
+      ],
+      "topic": "Accessibility",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None significant."
+      ]
+    },
+    {
+      "deepDive": "Follow WAI-ARIA authoring patterns where they fit; avoid inventing complex ARIA grids unless needed; ensure touch alternatives; announce moves with a live region; maintain focus on the moved card; test on mobile and with keyboard only.",
+      "difficulty": "senior",
+      "example": "This app's application board renders each column as a labelled list item with cards as links; status changes go through an accessible dialog rather than drag and drop.",
+      "followUps": [
+        "What does WCAG say about dragging movements?"
+      ],
+      "format": "subjective",
+      "id": "a11y-keyboard-kanban",
+      "intent": "Accessible complex widgets.",
+      "mistakes": [
+        "Mouse-only drag and drop.",
+        "ARIA attributes that misrepresent the widget."
+      ],
+      "question": "How would you make a drag-and-drop kanban board accessible?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Alternatives",
+          "strong": "Non-drag mechanism."
+        },
+        {
+          "criterion": "Semantics",
+          "strong": "Labelled columns and cards."
+        },
+        {
+          "criterion": "Feedback",
+          "strong": "Announcements and focus."
+        }
+      ],
+      "sources": [
+        {
+          "title": "WAI-ARIA Authoring Practices Guide",
+          "url": "https://www.w3.org/WAI/ARIA/apg/"
+        },
+        {
+          "title": "WCAG 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/"
+        }
+      ],
+      "spokenAnswer": "Drag and drop must not be the only way to move cards. Each card is a focusable link or button, and an accessible alternative — a \"move to\" menu or keyboard shortcuts — changes its column, with the result announced. Columns are labelled with their name and count, and the board works with screen readers as lists of cards.",
+      "tags": [
+        "accessibility",
+        "keyboard",
+        "kanban"
+      ],
+      "topic": "Accessibility",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Alternative controls add UI; they also help power users."
+      ]
+    },
+    {
+      "answerIndex": 2,
+      "choices": [
+        "2:1",
+        "3:1",
+        "4.5:1",
+        "7:1"
+      ],
+      "deepDive": "This is WCAG success criterion 1.4.3 Contrast (Minimum). Level AAA (1.4.6) raises it to 7:1. Non-text elements such as focus rings and input borders have a separate 3:1 requirement (1.4.11).",
+      "difficulty": "foundation",
+      "example": "Muted grey text on white often fails; check tokens in both light and dark themes.",
+      "followUps": [
+        "What is the non-text contrast requirement?"
+      ],
+      "format": "objective",
+      "id": "a11y-contrast-objective",
+      "intent": "Objective standards knowledge.",
+      "mistakes": [
+        "Checking only the light theme."
+      ],
+      "question": "Under WCAG 2.2 level AA, what is the minimum contrast ratio for normal-size body text?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "4.5:1."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "WCAG 2.2",
+          "url": "https://www.w3.org/TR/WCAG22/"
+        }
+      ],
+      "spokenAnswer": "At least 4.5:1 for normal body text; large text (roughly 18pt, or 14pt bold) needs at least 3:1.",
+      "tags": [
+        "accessibility",
+        "wcag"
+      ],
+      "topic": "Accessibility",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "title": "Node.js, testing, frontend architecture, AI UX and accessibility",
+  "track": "frontend-fullstack"
+}

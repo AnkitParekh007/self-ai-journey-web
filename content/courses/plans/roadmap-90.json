@@ -1,0 +1,3183 @@
+{
+  "baselineMinutesPerDay": 120,
+  "days": [
+    {
+      "blocks": [
+        {
+          "kind": "diagnostic",
+          "minutes": 60,
+          "resourceIds": [],
+          "task": "Run the diagnostic (Learning → Diagnostic). Rate yourself honestly; tested-out topics are converted to review."
+        },
+        {
+          "kind": "review",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Read the job-requirement skill demand in Insights; note the top 5 recurring skills."
+        },
+        {
+          "kind": "practice",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Write your 60-second positioning: enterprise frontend architecture plus practical AI application and agent engineering. Use only verified profile facts."
+        }
+      ],
+      "day": 1,
+      "deliverable": "Diagnostic results saved; positioning statement drafted.",
+      "focus": "P1 · Diagnostic and plan calibration",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "academy-claude-101",
+            "anthropic-prompt-engineering"
+          ],
+          "task": "Study notes: LLM fundamentals; Claude 101 module(s)."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: llm-context-window and llm-hallucination, timed 3 min each."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 2,
+      "deliverable": "Cheat sheet in your own words: tokens, context, sampling, hallucination mitigations.",
+      "focus": "P1 · LLM fundamentals: tokens, context, sampling, limits",
+      "topics": [
+        "LLM fundamentals"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "anthropic-prompt-engineering"
+          ],
+          "task": "Prompt engineering docs; structured outputs and validation."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Rewrite one prompt from core/prompts.ts; validate its JSON with a Zod schema."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 3,
+      "deliverable": "Prompt + schema + 5 test cases committed.",
+      "focus": "P1 · Prompting and structured output",
+      "topics": [
+        "Prompting & structured output"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "mdn-streams-sse"
+          ],
+          "task": "MDN Streams/SSE/AbortController notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 1: implement the SSE parser and state machine with the mocked provider."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 4,
+      "deliverable": "Project 1 parser + state machine with unit tests.",
+      "focus": "P1 · Streaming AI interfaces (project 1 start)",
+      "topics": [
+        "AI UX & streaming interfaces",
+        "JavaScript"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "webdev-learn-a11y"
+          ],
+          "task": "Study notes: AI UX patterns; ARIA live regions."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 1: stop button, error states, approval dialog (keyboard accessible)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 5,
+      "deliverable": "Project 1 demo script recorded as Markdown with screenshots.",
+      "focus": "P1 · Cancellation, errors and tool approvals",
+      "topics": [
+        "AI UX & streaming interfaces",
+        "Accessibility"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "ts-handbook"
+          ],
+          "task": "Handbook: narrowing, generics; satisfies."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Flashcards: TypeScript topic; mock ts-discriminated-unions."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 6,
+      "deliverable": "Exhaustive union handling with a type test in project 1.",
+      "focus": "P1 · TypeScript for robust UI state",
+      "topics": [
+        "TypeScript"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "angular-signals"
+          ],
+          "task": "Angular signals and zoneless guides."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: ng-change-detection, ng-rxjs-flattening; explain aloud with a diagram."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 7,
+      "deliverable": "Diagram: OnPush vs signals update flow.",
+      "focus": "P1 · Angular signals, change detection, RxJS",
+      "topics": [
+        "Angular"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 70,
+          "resourceIds": [],
+          "task": "Full 45-minute mock: 2 architecture + 2 AI + 1 behavioural (STAR from verified stories)."
+        },
+        {
+          "kind": "review",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Review weak topics from the week."
+        }
+      ],
+      "day": 8,
+      "deliverable": "Self-assessed rubric scores + 3 improvement notes.",
+      "focus": "P1 · Weekly mock interview #1",
+      "topics": [
+        "Angular",
+        "AI UX & streaming interfaces",
+        "LLM fundamentals"
+      ],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "anthropic-building-effective-agents",
+            "anthropic-tool-use"
+          ],
+          "task": "Building effective agents; tool use docs."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Design 3 tools with schemas for project 3; mock agent-tool-design."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 9,
+      "deliverable": "Tool schemas + invalid-argument tests.",
+      "focus": "P1 · Tool use and agent loops",
+      "topics": [
+        "Tool use & orchestration"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "anthropic-building-effective-agents"
+          ],
+          "task": "Study notes: agents; HITL patterns."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: agent-workflow-vs-agent and agent-hitl-approvals (use your real experience truthfully)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 10,
+      "deliverable": "Architecture sketch: plan-first agent with approvals and ledger.",
+      "focus": "P1 · Workflows vs agents, approvals, durable state",
+      "topics": [
+        "Tool use & orchestration"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "anthropic-contextual-retrieval"
+          ],
+          "task": "Contextual retrieval article; RAG notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 2: chunker + BM25 + mock embeddings over synthetic docs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 11,
+      "deliverable": "Project 2 retrieval with recall@5 on the fixture eval set.",
+      "focus": "P1 · RAG: chunking, hybrid search, reranking",
+      "topics": [
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "academy-building-with-api"
+          ],
+          "task": "RAG eval metrics notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 2: citation verification and the eval report."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 12,
+      "deliverable": "Project 2 eval report committed.",
+      "focus": "P1 · RAG: citations and evaluation",
+      "topics": [
+        "RAG & retrieval",
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "academy-intro-mcp",
+            "mcp-docs"
+          ],
+          "task": "MCP intro course/docs."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 3: stdio MCP server skeleton with list/read tools over synthetic data."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 13,
+      "deliverable": "Project 3 server responding to list/read with tests.",
+      "focus": "P1 · MCP fundamentals",
+      "topics": [
+        "MCP"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "mcp-docs",
+            "owasp-llm-top10"
+          ],
+          "task": "MCP security best practices; OWASP LLM top 10."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Project 3: validated write tool with root confinement and revision checks."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 14,
+      "deliverable": "Traversal and concurrency tests passing.",
+      "focus": "P1 · MCP security and safe file operations",
+      "topics": [
+        "MCP",
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 70,
+          "resourceIds": [],
+          "task": "Full mock: system design sd-enterprise-copilot (35 min) + 2 AI concept questions."
+        },
+        {
+          "kind": "review",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Review weak topics."
+        }
+      ],
+      "day": 15,
+      "deliverable": "Recorded or typed answers + self-assessment.",
+      "focus": "P1 · Weekly mock interview #2",
+      "topics": [
+        "Tool use & orchestration",
+        "RAG & retrieval",
+        "MCP"
+      ],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "academy-claude-code-101",
+            "claude-code-docs"
+          ],
+          "task": "Claude Code 101 / docs."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Use Claude Code on this repo for one change; add a read-only reviewer subagent."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 16,
+      "deliverable": "Write-up: what the agent did, what you reviewed.",
+      "focus": "P1 · Claude Code: CLAUDE.md, subagents, skills, hooks",
+      "topics": [
+        "Claude Code & agent tooling"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "academy-claude-code-in-action"
+          ],
+          "task": "Claude Code in Action."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add a secret-blocking hook; mock cc-hooks."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 17,
+      "deliverable": "Hook committed with a test or demo.",
+      "focus": "P1 · Claude Code in practice",
+      "topics": [
+        "Claude Code & agent tooling"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Eval notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add a CI eval gate to project 2 (deterministic graders)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 18,
+      "deliverable": "Eval gate runs in CI.",
+      "focus": "P1 · Evaluation: datasets, judges, CI gates",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "owasp-llm-top10"
+          ],
+          "task": "OWASP LLM top 10."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Threat-model project 1 and this app; mock sec-prompt-injection, sec-exfiltration."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 19,
+      "deliverable": "Threat model document.",
+      "focus": "P1 · AI security deep dive",
+      "topics": [
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "anthropic-prompt-caching"
+          ],
+          "task": "Prompt caching docs; production notes."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: prod-cost-control, prod-latency."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 20,
+      "deliverable": "Cost-control checklist for a copilot.",
+      "focus": "P1 · Production: cost, latency, retries",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "react-learn"
+          ],
+          "task": "react.dev effects and transitions."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: react-effects, react-stale-closures; refactor one effect."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 21,
+      "deliverable": "Refactor PR in this repo.",
+      "focus": "P1 · React refresh for AI UIs",
+      "topics": [
+        "React"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 70,
+          "resourceIds": [],
+          "task": "System design: sd-doc-qa-scale + behavioural (disagreement story)."
+        },
+        {
+          "kind": "review",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Review weak topics."
+        }
+      ],
+      "day": 22,
+      "deliverable": "Self-assessment + improvement notes.",
+      "focus": "P1 · Weekly mock interview #3",
+      "topics": [
+        "AI security",
+        "Evaluation & observability",
+        "React"
+      ],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "node-learn"
+          ],
+          "task": "Node streams/backpressure."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock SSE server for project 1 honouring disconnects."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 23,
+      "deliverable": "Server + test.",
+      "focus": "P1 · Node.js streaming backends",
+      "topics": [
+        "Node.js"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [
+            "playwright-docs"
+          ],
+          "task": "Playwright best practices."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Playwright test for project 1 stop/approve flows."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 24,
+      "deliverable": "E2E test passing.",
+      "focus": "P1 · Testing AI features",
+      "topics": [
+        "Testing"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Architecture notes."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: arch-micro-frontends, arch-legacy-migration (real migration story if true)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 25,
+      "deliverable": "One-page architecture decision record.",
+      "focus": "P1 · Frontend architecture leadership",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design notes."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock: sd-byok-router and sd-eval-platform."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 26,
+      "deliverable": "Diagrams for both designs.",
+      "focus": "P1 · System design: copilots and agent platforms",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Review project READMEs."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Finish READMEs, demo scripts and evidence links for projects 1–3."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 27,
+      "deliverable": "Evidence links added in Skills & evidence.",
+      "focus": "P1 · Portfolio polish",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Interview packs for active applications."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Prepare the top application's pack; rehearse 3 STAR stories from verified facts."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 28,
+      "deliverable": "Pack reviewed; questions to ask written.",
+      "focus": "P1 · Company-specific preparation",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 70,
+          "resourceIds": [],
+          "task": "Two back-to-back mocks: technical deep dive + system design."
+        },
+        {
+          "kind": "review",
+          "minutes": 30,
+          "resourceIds": [],
+          "task": "Weak-topic review."
+        }
+      ],
+      "day": 29,
+      "deliverable": "Scores compared with week 1.",
+      "focus": "P1 · Final mock loop",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue (due cards first)."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Insights: learning consistency and weak topics."
+        },
+        {
+          "kind": "practice",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Decide which roadmap-90 phase to continue with; update planned hours."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "One timed spoken answer on today's topic; self-assess with the rubric."
+        }
+      ],
+      "day": 30,
+      "deliverable": "Updated plan settings and notes.",
+      "focus": "P1 · Retrospective and 90-day plan handoff",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent architecture depth: durable workflows: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Implement resumable run ledger for project 3 operations."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 31,
+      "deliverable": "Implement resumable run ledger for project 3 operations.",
+      "focus": "P2 · Agent architecture depth: durable workflows (study + build)",
+      "topics": [
+        "Tool use & orchestration"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent evaluation: trajectories and safety metrics: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Trajectory eval for project 3 with fixture resets."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 32,
+      "deliverable": "Trajectory eval for project 3 with fixture resets.",
+      "focus": "P2 · Agent evaluation: trajectories and safety metrics (study + build)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Multi-agent trade-offs and subagents: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Compare single vs subagent review on 10 diffs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 33,
+      "deliverable": "Compare single vs subagent review on 10 diffs.",
+      "focus": "P2 · Multi-agent trade-offs and subagents (study + build)",
+      "topics": [
+        "Tool use & orchestration",
+        "Claude Code & agent tooling"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Advanced MCP: Streamable HTTP and authorization: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add HTTP transport with localhost binding and origin checks."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 34,
+      "deliverable": "Add HTTP transport with localhost binding and origin checks.",
+      "focus": "P2 · Advanced MCP: Streamable HTTP and authorization (study + build)",
+      "topics": [
+        "MCP"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "MCP threat modelling: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a threat model write-up for project 3."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 35,
+      "deliverable": "Publish a threat model write-up for project 3.",
+      "focus": "P2 · MCP threat modelling (study + build)",
+      "topics": [
+        "MCP",
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG at scale: ACLs and freshness: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add permission-filtered retrieval to project 2 fixtures."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 36,
+      "deliverable": "Add permission-filtered retrieval to project 2 fixtures.",
+      "focus": "P2 · RAG at scale: ACLs and freshness (study + build)",
+      "topics": [
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG evaluation with judges: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 37,
+      "deliverable": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required).",
+      "focus": "P2 · RAG evaluation with judges (study + build)",
+      "topics": [
+        "Evaluation & observability",
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Observability for LLM apps: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add structured traces to project 1 mock server."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 38,
+      "deliverable": "Add structured traces to project 1 mock server.",
+      "focus": "P2 · Observability for LLM apps (study + build)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Cost and latency engineering: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Cache-friendly prompt layouts; latency budget for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 39,
+      "deliverable": "Cache-friendly prompt layouts; latency budget for project 1.",
+      "focus": "P2 · Cost and latency engineering (study + build)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Provider routing and fallbacks: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Design doc: router with per-mode allowlists (synthetic)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 40,
+      "deliverable": "Design doc: router with per-mode allowlists (synthetic).",
+      "focus": "P2 · Provider routing and fallbacks (study + build)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent architecture depth: durable workflows: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Implement resumable run ledger for project 3 operations."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 41,
+      "deliverable": "Implement resumable run ledger for project 3 operations.",
+      "focus": "P2 · Agent architecture depth: durable workflows (build + evaluate)",
+      "topics": [
+        "Tool use & orchestration"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent evaluation: trajectories and safety metrics: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Trajectory eval for project 3 with fixture resets."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 42,
+      "deliverable": "Trajectory eval for project 3 with fixture resets.",
+      "focus": "P2 · Agent evaluation: trajectories and safety metrics (build + evaluate)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Multi-agent trade-offs and subagents: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Compare single vs subagent review on 10 diffs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 43,
+      "deliverable": "Compare single vs subagent review on 10 diffs.",
+      "focus": "P2 · Multi-agent trade-offs and subagents (build + evaluate)",
+      "topics": [
+        "Tool use & orchestration",
+        "Claude Code & agent tooling"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Advanced MCP: Streamable HTTP and authorization: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add HTTP transport with localhost binding and origin checks."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 44,
+      "deliverable": "Add HTTP transport with localhost binding and origin checks.",
+      "focus": "P2 · Advanced MCP: Streamable HTTP and authorization (build + evaluate)",
+      "topics": [
+        "MCP"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "MCP threat modelling: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a threat model write-up for project 3."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 45,
+      "deliverable": "Publish a threat model write-up for project 3.",
+      "focus": "P2 · MCP threat modelling (build + evaluate)",
+      "topics": [
+        "MCP",
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG at scale: ACLs and freshness: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add permission-filtered retrieval to project 2 fixtures."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 46,
+      "deliverable": "Add permission-filtered retrieval to project 2 fixtures.",
+      "focus": "P2 · RAG at scale: ACLs and freshness (build + evaluate)",
+      "topics": [
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG evaluation with judges: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 47,
+      "deliverable": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required).",
+      "focus": "P2 · RAG evaluation with judges (build + evaluate)",
+      "topics": [
+        "Evaluation & observability",
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Observability for LLM apps: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add structured traces to project 1 mock server."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 48,
+      "deliverable": "Add structured traces to project 1 mock server.",
+      "focus": "P2 · Observability for LLM apps (build + evaluate)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Cost and latency engineering: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Cache-friendly prompt layouts; latency budget for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 49,
+      "deliverable": "Cache-friendly prompt layouts; latency budget for project 1.",
+      "focus": "P2 · Cost and latency engineering (build + evaluate)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Provider routing and fallbacks: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Design doc: router with per-mode allowlists (synthetic)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 50,
+      "deliverable": "Design doc: router with per-mode allowlists (synthetic).",
+      "focus": "P2 · Provider routing and fallbacks (build + evaluate)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent architecture depth: durable workflows: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Implement resumable run ledger for project 3 operations."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 51,
+      "deliverable": "Implement resumable run ledger for project 3 operations.",
+      "focus": "P2 · Agent architecture depth: durable workflows (mock + refine)",
+      "topics": [
+        "Tool use & orchestration"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Agent evaluation: trajectories and safety metrics: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Trajectory eval for project 3 with fixture resets."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 52,
+      "deliverable": "Trajectory eval for project 3 with fixture resets.",
+      "focus": "P2 · Agent evaluation: trajectories and safety metrics (mock + refine)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Multi-agent trade-offs and subagents: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Compare single vs subagent review on 10 diffs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 53,
+      "deliverable": "Compare single vs subagent review on 10 diffs.",
+      "focus": "P2 · Multi-agent trade-offs and subagents (mock + refine)",
+      "topics": [
+        "Tool use & orchestration",
+        "Claude Code & agent tooling"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Advanced MCP: Streamable HTTP and authorization: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add HTTP transport with localhost binding and origin checks."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 54,
+      "deliverable": "Add HTTP transport with localhost binding and origin checks.",
+      "focus": "P2 · Advanced MCP: Streamable HTTP and authorization (mock + refine)",
+      "topics": [
+        "MCP"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "MCP threat modelling: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a threat model write-up for project 3."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 55,
+      "deliverable": "Publish a threat model write-up for project 3.",
+      "focus": "P2 · MCP threat modelling (mock + refine)",
+      "topics": [
+        "MCP",
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG at scale: ACLs and freshness: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add permission-filtered retrieval to project 2 fixtures."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 56,
+      "deliverable": "Add permission-filtered retrieval to project 2 fixtures.",
+      "focus": "P2 · RAG at scale: ACLs and freshness (mock + refine)",
+      "topics": [
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "RAG evaluation with judges: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 57,
+      "deliverable": "Calibrate an LLM-judge rubric offline using recorded outputs (no paid calls required).",
+      "focus": "P2 · RAG evaluation with judges (mock + refine)",
+      "topics": [
+        "Evaluation & observability",
+        "RAG & retrieval"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Observability for LLM apps: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Add structured traces to project 1 mock server."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 58,
+      "deliverable": "Add structured traces to project 1 mock server.",
+      "focus": "P2 · Observability for LLM apps (mock + refine)",
+      "topics": [
+        "Evaluation & observability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Cost and latency engineering: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Cache-friendly prompt layouts; latency budget for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 59,
+      "deliverable": "Cache-friendly prompt layouts; latency budget for project 1.",
+      "focus": "P2 · Cost and latency engineering (mock + refine)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Provider routing and fallbacks: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Design doc: router with per-mode allowlists (synthetic)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 60,
+      "deliverable": "Design doc: router with per-mode allowlists (synthetic).",
+      "focus": "P2 · Provider routing and fallbacks (mock + refine)",
+      "topics": [
+        "Production: cost, latency, reliability"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Angular platform architecture for AI features: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Angular variant of project 1 using signals."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 61,
+      "deliverable": "Angular variant of project 1 using signals.",
+      "focus": "P3 · Angular platform architecture for AI features (study + build)",
+      "topics": [
+        "Angular",
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Design systems for AI interaction patterns: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Approval card, citation chip, streaming message components documented."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 62,
+      "deliverable": "Approval card, citation chip, streaming message components documented.",
+      "focus": "P3 · Design systems for AI interaction patterns (study + build)",
+      "topics": [
+        "Frontend architecture",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Accessibility of AI interfaces: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Screen-reader test notes for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 63,
+      "deliverable": "Screen-reader test notes for project 1.",
+      "focus": "P3 · Accessibility of AI interfaces (study + build)",
+      "topics": [
+        "Accessibility",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Performance budgets and INP: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Budget checks in CI for this app."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 64,
+      "deliverable": "Budget checks in CI for this app.",
+      "focus": "P3 · Performance budgets and INP (study + build)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Node/NestJS orchestration service: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock orchestration service with guards and SSE."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 65,
+      "deliverable": "Mock orchestration service with guards and SSE.",
+      "focus": "P3 · Node/NestJS orchestration service (study + build)",
+      "topics": [
+        "Node.js"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Security reviews of AI features: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Security review checklist applied to all 3 projects."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 66,
+      "deliverable": "Security review checklist applied to all 3 projects.",
+      "focus": "P3 · Security reviews of AI features (study + build)",
+      "topics": [
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: enterprise copilot: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Full written design with trade-offs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 67,
+      "deliverable": "Full written design with trade-offs.",
+      "focus": "P3 · System design practice: enterprise copilot (study + build)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: support agent and code review agent: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Two designs, timed."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 68,
+      "deliverable": "Two designs, timed.",
+      "focus": "P3 · System design practice: support agent and code review agent (study + build)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Leadership stories and architecture decisions: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Three ADR-style write-ups from verified experience."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 69,
+      "deliverable": "Three ADR-style write-ups from verified experience.",
+      "focus": "P3 · Leadership stories and architecture decisions (study + build)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "study",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Portfolio and public write-ups: study official docs and notes."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a technical write-up (no private data)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 70,
+      "deliverable": "Publish a technical write-up (no private data).",
+      "focus": "P3 · Portfolio and public write-ups (study + build)",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Angular platform architecture for AI features: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Angular variant of project 1 using signals."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 71,
+      "deliverable": "Angular variant of project 1 using signals.",
+      "focus": "P3 · Angular platform architecture for AI features (build + evaluate)",
+      "topics": [
+        "Angular",
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Design systems for AI interaction patterns: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Approval card, citation chip, streaming message components documented."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 72,
+      "deliverable": "Approval card, citation chip, streaming message components documented.",
+      "focus": "P3 · Design systems for AI interaction patterns (build + evaluate)",
+      "topics": [
+        "Frontend architecture",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Accessibility of AI interfaces: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Screen-reader test notes for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 73,
+      "deliverable": "Screen-reader test notes for project 1.",
+      "focus": "P3 · Accessibility of AI interfaces (build + evaluate)",
+      "topics": [
+        "Accessibility",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Performance budgets and INP: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Budget checks in CI for this app."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 74,
+      "deliverable": "Budget checks in CI for this app.",
+      "focus": "P3 · Performance budgets and INP (build + evaluate)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Node/NestJS orchestration service: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock orchestration service with guards and SSE."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 75,
+      "deliverable": "Mock orchestration service with guards and SSE.",
+      "focus": "P3 · Node/NestJS orchestration service (build + evaluate)",
+      "topics": [
+        "Node.js"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Security reviews of AI features: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Security review checklist applied to all 3 projects."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 76,
+      "deliverable": "Security review checklist applied to all 3 projects.",
+      "focus": "P3 · Security reviews of AI features (build + evaluate)",
+      "topics": [
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: enterprise copilot: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Full written design with trade-offs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 77,
+      "deliverable": "Full written design with trade-offs.",
+      "focus": "P3 · System design practice: enterprise copilot (build + evaluate)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: support agent and code review agent: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Two designs, timed."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 78,
+      "deliverable": "Two designs, timed.",
+      "focus": "P3 · System design practice: support agent and code review agent (build + evaluate)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Leadership stories and architecture decisions: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Three ADR-style write-ups from verified experience."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 79,
+      "deliverable": "Three ADR-style write-ups from verified experience.",
+      "focus": "P3 · Leadership stories and architecture decisions (build + evaluate)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Portfolio and public write-ups: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a technical write-up (no private data)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 80,
+      "deliverable": "Publish a technical write-up (no private data).",
+      "focus": "P3 · Portfolio and public write-ups (build + evaluate)",
+      "topics": [],
+      "track": "both"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Angular platform architecture for AI features: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Angular variant of project 1 using signals."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 81,
+      "deliverable": "Angular variant of project 1 using signals.",
+      "focus": "P3 · Angular platform architecture for AI features (mock + refine)",
+      "topics": [
+        "Angular",
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Design systems for AI interaction patterns: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Approval card, citation chip, streaming message components documented."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 82,
+      "deliverable": "Approval card, citation chip, streaming message components documented.",
+      "focus": "P3 · Design systems for AI interaction patterns (mock + refine)",
+      "topics": [
+        "Frontend architecture",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Accessibility of AI interfaces: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Screen-reader test notes for project 1."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 83,
+      "deliverable": "Screen-reader test notes for project 1.",
+      "focus": "P3 · Accessibility of AI interfaces (mock + refine)",
+      "topics": [
+        "Accessibility",
+        "AI UX & streaming interfaces"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Performance budgets and INP: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Budget checks in CI for this app."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 84,
+      "deliverable": "Budget checks in CI for this app.",
+      "focus": "P3 · Performance budgets and INP (mock + refine)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Node/NestJS orchestration service: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Mock orchestration service with guards and SSE."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 85,
+      "deliverable": "Mock orchestration service with guards and SSE.",
+      "focus": "P3 · Node/NestJS orchestration service (mock + refine)",
+      "topics": [
+        "Node.js"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Security reviews of AI features: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Security review checklist applied to all 3 projects."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 86,
+      "deliverable": "Security review checklist applied to all 3 projects.",
+      "focus": "P3 · Security reviews of AI features (mock + refine)",
+      "topics": [
+        "AI security"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: enterprise copilot: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Full written design with trade-offs."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 87,
+      "deliverable": "Full written design with trade-offs.",
+      "focus": "P3 · System design practice: enterprise copilot (mock + refine)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "System design practice: support agent and code review agent: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Two designs, timed."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 88,
+      "deliverable": "Two designs, timed.",
+      "focus": "P3 · System design practice: support agent and code review agent (mock + refine)",
+      "topics": [
+        "System design: copilots & agents"
+      ],
+      "track": "applied-ai"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Leadership stories and architecture decisions: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Three ADR-style write-ups from verified experience."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 89,
+      "deliverable": "Three ADR-style write-ups from verified experience.",
+      "focus": "P3 · Leadership stories and architecture decisions (mock + refine)",
+      "topics": [
+        "Frontend architecture"
+      ],
+      "track": "frontend-fullstack"
+    },
+    {
+      "blocks": [
+        {
+          "kind": "review",
+          "minutes": 20,
+          "resourceIds": [],
+          "task": "Spaced review queue."
+        },
+        {
+          "kind": "practice",
+          "minutes": 40,
+          "resourceIds": [],
+          "task": "Portfolio and public write-ups: deepen with harder questions and follow-ups."
+        },
+        {
+          "kind": "build",
+          "minutes": 45,
+          "resourceIds": [],
+          "task": "Publish a technical write-up (no private data)."
+        },
+        {
+          "kind": "mock",
+          "minutes": 15,
+          "resourceIds": [],
+          "task": "Timed answer on today's topic; record self-assessment."
+        }
+      ],
+      "day": 90,
+      "deliverable": "Publish a technical write-up (no private data).",
+      "focus": "P3 · Portfolio and public write-ups (mock + refine)",
+      "topics": [],
+      "track": "both"
+    }
+  ],
+  "id": "roadmap-90",
+  "schemaVersion": 1,
+  "title": "90-day deeper roadmap"
+}

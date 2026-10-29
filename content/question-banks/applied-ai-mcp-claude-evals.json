@@ -1,0 +1,1274 @@
+{
+  "description": "MCP architecture, primitives, transports, authorization and security; CLAUDE.md, subagents, skills, hooks and the Agent SDK; eval datasets, judges, CI gates, tracing and agent metrics. Examples are illustrative scenarios written for practice, not claims about anyone's work history.",
+  "id": "applied-ai-mcp-claude-evals",
+  "questions": [
+    {
+      "deepDive": "Key ideas: one client per server connection; capability negotiation during initialization so each side knows what the other supports; server-side primitives are tools (model-invoked actions), resources (application- or user-selected context identified by URIs) and prompts (user-invoked templates); client-side features include sampling (server asks the host's model for a completion), roots (filesystem boundaries) and elicitation (server asks the user for input). Messages are JSON-RPC 2.0. The value is decoupling: one server works with many hosts.",
+      "difficulty": "foundation",
+      "example": "Hypothetical: a job-search MCP server exposes tools (search_saved_jobs, draft_followup), resources (profile evidence as read-only URIs) and a prompt template (prepare_interview). Any MCP-capable host can use it without custom integration.",
+      "followUps": [
+        "When would you use resources instead of tools?",
+        "What is sampling for?"
+      ],
+      "format": "subjective",
+      "id": "mcp-architecture",
+      "intent": "Baseline MCP literacy.",
+      "mistakes": [
+        "Confusing the host with the client.",
+        "Assuming MCP itself enforces security policy."
+      ],
+      "question": "Explain the Model Context Protocol architecture: host, client and server.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Roles",
+          "strong": "Correctly distinguishes host, client, server."
+        },
+        {
+          "criterion": "Primitives",
+          "strong": "Names tools, resources, prompts."
+        },
+        {
+          "criterion": "Value",
+          "strong": "Explains decoupling."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP: Introduction",
+          "url": "https://modelcontextprotocol.io/docs/getting-started/intro"
+        },
+        {
+          "title": "MCP specification (2025-06-18)",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18"
+        }
+      ],
+      "spokenAnswer": "MCP standardises how AI applications connect to external capabilities. The host is the AI application the user works in, such as an IDE assistant or chat app. Inside it, each MCP client maintains a connection to one MCP server. Servers expose capabilities — tools the model can call, resources it can read, and prompt templates — over JSON-RPC. The host decides which servers to connect, what to show the model and what requires user consent.",
+      "tags": [
+        "mcp",
+        "architecture"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Standardisation versus the overhead of running and securing separate server processes."
+      ]
+    },
+    {
+      "deepDive": "Control model: tools are model-controlled (with host-mediated consent), resources are application-controlled, prompts are user-controlled. Read-only lookups can be either tools or resources; choose resources when the host should manage selection and caching, tools when the model needs to decide dynamically with parameters. Data-changing operations should be tools with clear descriptions and server-side authorization; tool annotations such as read-only or destructive hints help hosts present consent, but hosts should treat annotations from untrusted servers as hints, not guarantees.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical learning assistant: `resource://notes/{topic}` for study notes the user attaches; tool `schedule_review(questionId, grade)` that writes a review event; prompt `mock_interview(topic)` the user starts from a menu.",
+      "followUps": [
+        "How do you design a write tool that is safe to auto-approve?"
+      ],
+      "format": "subjective",
+      "id": "mcp-tools-resources-prompts",
+      "intent": "Design judgement on MCP primitives.",
+      "mistakes": [
+        "Exposing everything as tools.",
+        "Trusting tool annotations from unknown servers."
+      ],
+      "question": "When should an MCP server expose something as a tool, a resource or a prompt?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Control model",
+          "strong": "Model vs application vs user control."
+        },
+        {
+          "criterion": "Examples",
+          "strong": "Correct mapping of examples."
+        },
+        {
+          "criterion": "Safety",
+          "strong": "Annotations as hints and server-side auth."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP specification (2025-06-18)",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18"
+        }
+      ],
+      "spokenAnswer": "Tools are for actions or computations the model decides to invoke — searching, creating, sending. Resources are for context data identified by a URI that the application or user chooses to include — files, records, schemas. Prompts are reusable templates the user explicitly picks, like a slash command. I ask who controls the invocation: the model, the application, or the user.",
+      "tags": [
+        "mcp",
+        "tools",
+        "resources",
+        "prompts"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Resources give the host control but less model autonomy; tools are flexible but need consent and validation."
+      ]
+    },
+    {
+      "deepDive": "stdio: no network exposure, inherits the user's local permissions (which is itself a risk), lifecycle tied to the host. Streamable HTTP: a single endpoint handling POST requests, optionally streaming server messages; needs authentication (the spec defines an OAuth-based authorization flow for HTTP), origin validation and binding to localhost when run locally to avoid DNS-rebinding attacks; supports session management. Streamable HTTP replaced the earlier HTTP+SSE transport in the 2025 revisions of the spec.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a file-safe job assistant runs over stdio for a single developer; the team version runs as an HTTP service behind SSO with per-user tokens.",
+      "followUps": [
+        "How does authorization work for remote MCP servers?"
+      ],
+      "format": "subjective",
+      "id": "mcp-transports",
+      "intent": "Deployment knowledge.",
+      "mistakes": [
+        "Running a local HTTP server bound to all interfaces without origin checks.",
+        "Assuming stdio servers are automatically sandboxed."
+      ],
+      "question": "Compare MCP's stdio and Streamable HTTP transports. When would you use each?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanics",
+          "strong": "Correct description of both transports."
+        },
+        {
+          "criterion": "Fit",
+          "strong": "Appropriate use cases."
+        },
+        {
+          "criterion": "Security",
+          "strong": "Origin checks, auth, local binding."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP spec: transports",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports"
+        }
+      ],
+      "spokenAnswer": "With stdio, the host launches the server as a local subprocess and they exchange JSON-RPC messages over standard input and output. It is simple and local, good for tools on the user's machine. Streamable HTTP runs the server as an independent HTTP service that can serve many clients, streams responses when needed, and supports remote deployment with authentication. I use stdio for local developer tools and HTTP for shared or hosted servers.",
+      "tags": [
+        "mcp",
+        "transports",
+        "deployment"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Local simplicity versus remote scalability and the security work it requires."
+      ]
+    },
+    {
+      "deepDive": "Points: follow the spec's authorization section (OAuth 2.1-based flows for HTTP transports, discovery of the authorization server through protected resource metadata, audience-bound tokens); least-privilege scopes; per-tool authorization checks; avoid confused-deputy problems where the server uses its own broad privileges on behalf of a user who should not have them; short-lived tokens; audit logging of tool calls with user identity; rate limits. The host still asks the user for consent before sensitive tool calls.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a CRM MCP server validates that the token audience is itself, maps the user to CRM permissions, and checks record-level access inside `get_account` rather than trusting the model's arguments.",
+      "followUps": [
+        "What is the confused deputy problem in this context?"
+      ],
+      "format": "subjective",
+      "id": "mcp-auth",
+      "intent": "Security architecture for MCP.",
+      "mistakes": [
+        "Token passthrough to downstream services.",
+        "Relying on the model to respect permissions."
+      ],
+      "question": "How should authorization work for a remote MCP server that accesses users' company data?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Model",
+          "strong": "Server as protected resource with validated, scoped tokens."
+        },
+        {
+          "criterion": "Pitfalls",
+          "strong": "No token passthrough; per-tool checks."
+        },
+        {
+          "criterion": "Ops",
+          "strong": "Audit and consent."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP spec: authorization",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization"
+        },
+        {
+          "title": "MCP: security best practices",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices"
+        }
+      ],
+      "spokenAnswer": "The MCP server acts as a protected resource: clients obtain access tokens through an OAuth-based flow defined by the spec, scoped to that server, and the server validates every token and enforces the user's permissions on each request. The server must not pass the client's token through to downstream APIs; it uses its own credentials or a proper token exchange, and each tool checks authorization for the specific data it touches.",
+      "tags": [
+        "mcp",
+        "authorization",
+        "oauth",
+        "security"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Strong auth adds friction to setup; weak auth turns the server into a data-exfiltration path."
+      ]
+    },
+    {
+      "deepDive": "Threats: tool poisoning (instructions hidden in descriptions), indirect prompt injection via returned content, rug-pull updates, name collisions with trusted tools, credential theft from environment variables, exfiltration through outbound requests. Controls: curated registry and pinning; run servers in containers or restricted processes with network egress limits; never put secrets in descriptions; separate high-trust and low-trust servers; show full tool descriptions on approval; require confirmation for writes and outbound sends; monitor for anomalous calls.",
+      "difficulty": "senior",
+      "example": "Hypothetical policy for a team: only servers from an internal registry, versions pinned by hash, local servers run in a container with read-only mounts, and any tool that sends data outside the company needs explicit per-call approval.",
+      "followUps": [
+        "How would you detect a malicious tool description?"
+      ],
+      "format": "subjective",
+      "id": "mcp-security-risks",
+      "intent": "Supply-chain and prompt-injection awareness.",
+      "mistakes": [
+        "Installing servers from random repositories with full filesystem access.",
+        "Trusting tool descriptions."
+      ],
+      "question": "What security risks come with letting users install third-party MCP servers, and how do you mitigate them?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Threats",
+          "strong": "Code, injection, rug pull, exfiltration."
+        },
+        {
+          "criterion": "Controls",
+          "strong": "Allowlist, pinning, sandbox, consent."
+        },
+        {
+          "criterion": "Data handling",
+          "strong": "Tool output as untrusted."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP: security best practices",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices"
+        },
+        {
+          "title": "OWASP Top 10 for LLM Applications",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ],
+      "spokenAnswer": "A third-party server is code plus text that reaches the model. Risks: malicious or compromised code running with the user's permissions, tool descriptions or results that contain hidden instructions to the model, servers that change behaviour after approval, and over-broad data access that enables exfiltration. I mitigate with an allowlist of reviewed servers pinned to versions, sandboxing and least privilege, user consent for sensitive tools, treating tool output as untrusted data, and logging.",
+      "tags": [
+        "mcp",
+        "security",
+        "supply chain",
+        "prompt injection"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Security controls reduce convenience and slow adoption."
+      ]
+    },
+    {
+      "deepDive": "Details: roots configured by the host; canonicalise paths and reject `..`, absolute paths and symlinks outside the root; allowlist file types; schema-validated writes; optimistic concurrency (expected revision) to avoid clobbering edits from other tools; atomic temp-file-and-rename; dry-run mode; no delete tool (soft delete via tombstones); size limits on reads; redact secrets; return structured results; read-only resources for profile evidence; tests for traversal and concurrency.",
+      "difficulty": "senior",
+      "example": "This project's portfolio exercise 3 implements exactly this pattern with synthetic data and a mocked model; see content/projects.",
+      "followUps": [
+        "How would you test path traversal protection?",
+        "How do you handle concurrent edits from the browser app?"
+      ],
+      "format": "subjective",
+      "id": "mcp-design-safe-files",
+      "intent": "Applied design: safe file operations.",
+      "mistakes": [
+        "Generic read_file/write_file tools on the whole disk.",
+        "Letting the model set statuses that imply real-world actions."
+      ],
+      "question": "Design an MCP server that lets an assistant read and update a user's job-application files safely.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Scope",
+          "strong": "Narrow typed tools, root confinement."
+        },
+        {
+          "criterion": "Integrity",
+          "strong": "Validation, atomic writes, revisions."
+        },
+        {
+          "criterion": "Human control",
+          "strong": "Proposals and logging."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP specification (2025-06-18)",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18"
+        },
+        {
+          "title": "MCP: security best practices",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices"
+        }
+      ],
+      "spokenAnswer": "I would not expose raw filesystem access. The server exposes narrow, typed tools: list applications, read one application, append a note, propose a status change. Paths are resolved inside a configured root and rejected if they escape it; writes are validated against the data schema, written atomically with a revision check, and anything consequential — like marking an application as submitted — is returned as a proposal the user confirms. All operations are logged.",
+      "tags": [
+        "mcp",
+        "file safety",
+        "design"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Narrow tools are safer but need more server code than a generic file API."
+      ]
+    },
+    {
+      "answerIndex": 2,
+      "choices": [
+        "Tools",
+        "Resources",
+        "Prompts",
+        "Sampling"
+      ],
+      "deepDive": "The spec describes prompts as templates exposed for users to select explicitly, often surfaced as slash commands.",
+      "difficulty": "foundation",
+      "example": "A host lists server prompts under a \"/\" menu.",
+      "followUps": [
+        "Give an example of each primitive."
+      ],
+      "format": "objective",
+      "id": "mcp-capabilities-objective",
+      "intent": "Objective primitive check.",
+      "mistakes": [
+        "Calling prompts \"tools\"."
+      ],
+      "question": "In MCP, which primitive is typically user-controlled, such as a template the user chooses from a menu?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses prompts."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP specification (2025-06-18)",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18"
+        }
+      ],
+      "spokenAnswer": "Prompts. Tools are model-controlled and resources are application-controlled.",
+      "tags": [
+        "mcp"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "It will be slower than stdio.",
+        "Other hosts and malicious websites can reach and invoke its tools.",
+        "JSON-RPC will fail.",
+        "It cannot stream."
+      ],
+      "deepDive": "The transport spec calls out binding local servers to localhost and validating origins; authentication is needed for anything beyond trivial demos.",
+      "difficulty": "intermediate",
+      "example": "Switching to stdio for a single-user local tool removes the network surface entirely.",
+      "followUps": [
+        "When is stdio preferable?"
+      ],
+      "format": "objective",
+      "id": "mcp-stdio-objective",
+      "intent": "Objective local-server security.",
+      "mistakes": [
+        "Assuming a laptop is a safe network."
+      ],
+      "question": "A colleague runs an MCP server over Streamable HTTP on their laptop, bound to 0.0.0.0 without authentication. What is the main risk?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Identifies network exposure and rebinding."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "MCP spec: transports",
+          "url": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports"
+        }
+      ],
+      "spokenAnswer": "Other machines on the network — and malicious websites via DNS rebinding — can reach it and invoke its tools. Bind to localhost, validate the Origin header and require authentication.",
+      "tags": [
+        "mcp",
+        "security"
+      ],
+      "topic": "MCP",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Memory can exist at several levels (user, project, and imported files). Keep the project file short because it costs context on every session; link to detailed docs instead of pasting them. Write rules as verifiable statements, include commands, and update it when conventions change. Review it like code because it shapes agent behaviour.",
+      "difficulty": "foundation",
+      "example": "This repository's CLAUDE.md lists data contracts, the truthful-profile rules, sync strategy, privacy boundaries and commands, and links to docs/ for detail.",
+      "followUps": [
+        "How would you check that the agent follows a rule?"
+      ],
+      "format": "subjective",
+      "id": "cc-claude-md",
+      "intent": "Practical agentic-coding hygiene.",
+      "mistakes": [
+        "Pasting secrets or credentials.",
+        "Huge, stale CLAUDE.md files that the agent half-follows."
+      ],
+      "question": "What belongs in a project CLAUDE.md file, and what does not?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Content",
+          "strong": "Commands, conventions, invariants."
+        },
+        {
+          "criterion": "Exclusions",
+          "strong": "No secrets or volatile content."
+        },
+        {
+          "criterion": "Maintenance",
+          "strong": "Concise and reviewed."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: memory (CLAUDE.md)",
+          "url": "https://docs.claude.com/en/docs/claude-code/memory"
+        }
+      ],
+      "spokenAnswer": "CLAUDE.md is persistent project guidance loaded into Claude Code's context: how to build, test and lint, architecture and data contracts, conventions, and rules that must not be broken — for example \"never write tokens to disk\" or \"documents use only verified profile facts\". It should be concise and specific. It should not contain secrets, long copied documentation, or instructions that change every week; those go into code, linked docs or task prompts.",
+      "tags": [
+        "claude code",
+        "claude.md"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Detail versus context cost."
+      ]
+    },
+    {
+      "deepDive": "Benefits: context isolation, specialised prompts, least-privilege tool sets, and parallelism for independent tasks. Costs: extra tokens, latency, and loss of nuance because only a summary returns. Good subagent tasks have clear inputs and a clear deliverable. Subagents are defined as configuration (name, description used for delegation, tool list, prompt), project- or user-scoped.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a read-only \"security-reviewer\" subagent with only file-reading tools reviews diffs for secrets and unsafe file operations, returning a short findings list to the main session.",
+      "followUps": [
+        "How would you write a good subagent description?"
+      ],
+      "format": "subjective",
+      "id": "cc-subagents",
+      "intent": "Understanding context isolation and delegation.",
+      "mistakes": [
+        "Delegating tightly coupled work that needs shared context.",
+        "Giving subagents broader tools than needed."
+      ],
+      "question": "What is a subagent in Claude Code, and when does using one help?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Own context, tools and prompt."
+        },
+        {
+          "criterion": "Use cases",
+          "strong": "Self-contained, parallel, least privilege."
+        },
+        {
+          "criterion": "Trade-offs",
+          "strong": "Cost and summary loss."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: subagents",
+          "url": "https://docs.claude.com/en/docs/claude-code/sub-agents"
+        }
+      ],
+      "spokenAnswer": "A subagent is a specialised assistant with its own instructions, tool permissions and its own context window. The main agent delegates a task to it and receives a result, so the main conversation stays focused and is not filled with intermediate search results or logs. It helps for self-contained tasks like exploring a large codebase, reviewing a diff, or running and summarising tests — and for limiting tools, for example a read-only reviewer.",
+      "tags": [
+        "claude code",
+        "subagents",
+        "context"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Isolation and focus versus token cost and summary loss."
+      ]
+    },
+    {
+      "deepDive": "Design tips: the description must say precisely when to use the skill; keep instructions procedural; put deterministic work in bundled scripts rather than asking the model to reinvent it; keep reference material in separate files loaded on demand; version skills with the repo; treat third-party skills as code you must review because they can include executable scripts.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a \"render-cv\" skill bundles the document renderer script and the house style rules; it loads only when the user asks to produce a resume, keeping normal sessions lean.",
+      "followUps": [
+        "How would you test that a skill triggers correctly?"
+      ],
+      "format": "subjective",
+      "id": "cc-skills",
+      "intent": "Understanding progressive disclosure of capabilities.",
+      "mistakes": [
+        "Vague descriptions so the skill never triggers or triggers wrongly.",
+        "Installing untrusted skills with scripts."
+      ],
+      "question": "How do agent skills differ from a long system prompt or a CLAUDE.md file?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Packaged capability with progressive loading."
+        },
+        {
+          "criterion": "Contrast",
+          "strong": "Always-on CLAUDE.md vs on-demand skill."
+        },
+        {
+          "criterion": "Practice",
+          "strong": "Descriptions, scripts, review."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: agent skills",
+          "url": "https://docs.claude.com/en/docs/claude-code/skills"
+        }
+      ],
+      "spokenAnswer": "A skill is a packaged capability — a folder with a SKILL.md containing a name, a description and instructions, optionally with scripts and reference files. Only the short description sits in context up front; the full instructions load when the task matches. So you can offer many capabilities without paying their full context cost on every request. CLAUDE.md, by contrast, is always loaded and is for project-wide rules.",
+      "tags": [
+        "claude code",
+        "skills"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Many skills increase selection ambiguity if descriptions overlap."
+      ]
+    },
+    {
+      "deepDive": "Hooks receive event data, can allow, block or add context, and their output can be fed back to the agent. Uses: policy enforcement (deny edits to lockfiles or data/ without validation), formatting and linting after edits, logging for audit, notifications, injecting context at session start. Keep hooks fast and safe because they run with your permissions; review hook configuration like code.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a pre-tool hook rejects any edit whose content matches a GitHub token pattern; a post-edit hook runs the schema validator on changed data/*.json files.",
+      "followUps": [
+        "How would you test a hook?"
+      ],
+      "format": "subjective",
+      "id": "cc-hooks",
+      "intent": "Deterministic control over an agent.",
+      "mistakes": [
+        "Relying on CLAUDE.md instructions for rules that must never be broken.",
+        "Slow hooks that make sessions sluggish."
+      ],
+      "question": "What are hooks in Claude Code and give two practical uses.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Lifecycle events running deterministic code."
+        },
+        {
+          "criterion": "Uses",
+          "strong": "Two concrete, valuable uses."
+        },
+        {
+          "criterion": "Caution",
+          "strong": "Performance and security of hooks."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: hooks",
+          "url": "https://docs.claude.com/en/docs/claude-code/hooks"
+        }
+      ],
+      "spokenAnswer": "Hooks are user-defined commands that run automatically at specific points in the agent's lifecycle — for example before or after a tool is used, when a prompt is submitted, or when a session starts or stops. Because they are deterministic code, they enforce things you do not want to leave to the model: blocking writes to protected paths or files containing secrets before a tool runs, and running the formatter or tests after files are edited.",
+      "tags": [
+        "claude code",
+        "hooks",
+        "policy"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Strict hooks add friction and latency to every tool call."
+      ]
+    },
+    {
+      "deepDive": "Choose the raw API when you need full control, a minimal dependency, or a narrow single-call feature. Choose the SDK when you want a general-purpose agent with tool use and you are comfortable with its permission model; you still need to sandbox it, restrict tools, set budgets and evaluate it. Either way, model usage is billed as API usage; a chat subscription is not an API entitlement unless the provider says so.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a nightly maintenance agent that triages failing tests uses the SDK with only read and test-running tools allowed and a step budget; a single-shot summarizer in the web app calls the Messages API directly.",
+      "followUps": [
+        "How would you sandbox an SDK-based agent?"
+      ],
+      "format": "subjective",
+      "id": "cc-agent-sdk",
+      "intent": "Understanding build-versus-buy for agent loops.",
+      "mistakes": [
+        "Assuming a subscription covers SDK/API usage.",
+        "Running an SDK agent with unrestricted shell access on a production host."
+      ],
+      "question": "What does the Claude Agent SDK give you compared with calling the Messages API directly?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Comparison",
+          "strong": "Single calls vs packaged harness."
+        },
+        {
+          "criterion": "Choice",
+          "strong": "When to use each."
+        },
+        {
+          "criterion": "Ops",
+          "strong": "Sandboxing, budgets, billing awareness."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Agent SDK overview",
+          "url": "https://docs.claude.com/en/docs/agent-sdk/overview"
+        }
+      ],
+      "spokenAnswer": "The Messages API gives you single model calls; you build the agent loop, tool execution, context management and permissions yourself. The Agent SDK packages the agent harness behind Claude Code — the loop, built-in tools such as file and shell operations, permission handling, hooks, subagents, session management and context compaction — so you can build an agent by configuring it rather than writing the harness from scratch.",
+      "tags": [
+        "agent sdk",
+        "claude code",
+        "architecture"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Speed of building versus control and dependency weight."
+      ]
+    },
+    {
+      "deepDive": "Elements: permission allow/deny rules for tools and commands; plan mode for risky changes; project-level settings checked in, personal overrides local; hooks for secret scanning; MCP servers allowlisted; sandboxed or containerised execution for autonomous runs; CI as the final gate. Train the team to review diffs, not trust summaries.",
+      "difficulty": "intermediate",
+      "example": "This repository forbids writing tokens anywhere, and its lint rules ban localStorage; an agent working here should be configured to run the validator and tests before proposing a commit.",
+      "followUps": [
+        "What would you allow without prompting?"
+      ],
+      "format": "subjective",
+      "id": "cc-permissions",
+      "intent": "Applied governance.",
+      "mistakes": [
+        "Blanket auto-approve on a repo with production credentials."
+      ],
+      "question": "How would you configure an agentic coding tool for a team working on a repository with customer data?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Least privilege",
+          "strong": "Allow/deny rationale."
+        },
+        {
+          "criterion": "Shared policy",
+          "strong": "Checked-in settings and hooks."
+        },
+        {
+          "criterion": "Process",
+          "strong": "Review and CI."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code overview",
+          "url": "https://docs.claude.com/en/docs/claude-code/overview"
+        }
+      ],
+      "spokenAnswer": "Least privilege by default: allow read operations and the project's own test and lint commands, require approval for edits outside source folders, network calls and git pushes, and deny access to secrets and data directories. Shared settings live in the repository so everyone gets the same policy; hooks enforce rules that must never be broken; and work happens in branches with normal code review.",
+      "tags": [
+        "claude code",
+        "permissions",
+        "governance"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Tighter permissions mean more prompts and slower flow."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Subagents use a cheaper model by definition.",
+        "To keep intermediate results out of the main context and get back a concise summary.",
+        "Subagents bypass permissions.",
+        "They make searches deterministic."
+      ],
+      "deepDive": "Context isolation is the core benefit; specialised tools and prompts are secondary benefits.",
+      "difficulty": "foundation",
+      "example": "A subagent reads 40 files and returns the 3 relevant ones with line references.",
+      "followUps": [
+        "When would you not delegate?"
+      ],
+      "format": "objective",
+      "id": "cc-subagent-objective",
+      "intent": "Objective context-isolation check.",
+      "mistakes": [
+        "Believing subagents share the main context."
+      ],
+      "question": "What is the main reason to delegate a large codebase search to a subagent?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses context isolation."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: subagents",
+          "url": "https://docs.claude.com/en/docs/claude-code/sub-agents"
+        }
+      ],
+      "spokenAnswer": "To keep the main conversation's context free of the many intermediate search results; the subagent works in its own context and returns a concise summary.",
+      "tags": [
+        "subagents"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Extra tokens overall."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Only in CLAUDE.md.",
+        "In a pre-tool hook or permission rule enforced by the harness.",
+        "In the commit message.",
+        "By lowering temperature."
+      ],
+      "deepDive": "Instructions are followed probabilistically; hooks and permissions are enforced by the harness.",
+      "difficulty": "foundation",
+      "example": "A pre-tool hook scans proposed content for key patterns and blocks the edit.",
+      "followUps": [
+        "How would you test it?"
+      ],
+      "format": "objective",
+      "id": "cc-hooks-objective",
+      "intent": "Objective deterministic-control check.",
+      "mistakes": [
+        "Relying on prompts for hard guarantees."
+      ],
+      "question": "A rule must never be broken: no edits to files containing API keys. Where should it be enforced?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses hook/permission enforcement."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Claude Code: hooks",
+          "url": "https://docs.claude.com/en/docs/claude-code/hooks"
+        }
+      ],
+      "spokenAnswer": "In a hook (or permission rule) that runs deterministic code before the tool executes, not only as a sentence in CLAUDE.md.",
+      "tags": [
+        "hooks",
+        "security"
+      ],
+      "topic": "Claude Code & agent tooling",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Hooks add latency."
+      ]
+    },
+    {
+      "deepDive": "Sources: product requirements, support tickets, domain experts, synthetic generation (reviewed by humans), red-team brainstorming. Structure: tags per case (intent, difficulty, risk) for segment metrics; split into a fast smoke set for CI and a larger nightly set. Keep cases versioned. Avoid only-synthetic data that mirrors your own prompt assumptions.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: an application-drafting assistant starts with 40 cases: 25 normal postings, 5 with missing facts that must produce TODO markers, 5 with injected instructions in the job text, 5 where the role is a poor fit and the system should say so.",
+      "followUps": [
+        "How do you decide when the dataset is big enough?"
+      ],
+      "format": "subjective",
+      "id": "evals-dataset",
+      "intent": "Bootstrapping evals pragmatically.",
+      "mistakes": [
+        "Waiting for production data before evaluating.",
+        "Cases without checkable expectations."
+      ],
+      "question": "How do you build an evaluation dataset for a new LLM feature when you have no production data yet?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Coverage",
+          "strong": "Intents, edges, adversarial, refusals."
+        },
+        {
+          "criterion": "Checkability",
+          "strong": "Clear expectations."
+        },
+        {
+          "criterion": "Growth",
+          "strong": "Failures become cases; real data later."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "Start small and specific: write 30–50 cases by hand that cover the main user intents, known edge cases, adversarial inputs and questions the system should refuse. Each case has an input and a checkable expectation — an exact field value, required facts, a rubric. Run the prototype, read the outputs, and turn every surprising failure into a new case. Once real traffic exists, sample and label real cases.",
+      "tags": [
+        "evals",
+        "datasets"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Hand-written cases are high quality but few; synthetic cases scale but can be unrealistic."
+      ]
+    },
+    {
+      "deepDive": "Practices: pairwise comparisons for A/B decisions; binary or small-scale rubrics instead of 1–10 scales; separate judge prompts per criterion; blind the judge to which variant is which; measure agreement with humans (e.g., percent agreement) and re-check after judge model changes; sample judge outputs for manual review; never use the judge as the only gate for safety-critical behaviour.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a faithfulness judge receives the cited passages and the answer and must output supported/unsupported per sentence; it agreed with human labels on most of a 100-sentence calibration set, and disagreements led to rubric fixes.",
+      "followUps": [
+        "How would you detect judge drift?"
+      ],
+      "format": "subjective",
+      "id": "evals-llm-judge",
+      "intent": "Critical understanding of automated grading.",
+      "mistakes": [
+        "Vague rubrics (\"rate quality 1–10\").",
+        "Never comparing the judge with human labels."
+      ],
+      "question": "When is LLM-as-judge appropriate, and how do you keep it honest?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Fit",
+          "strong": "When judges are appropriate."
+        },
+        {
+          "criterion": "Calibration",
+          "strong": "Human agreement checks."
+        },
+        {
+          "criterion": "Bias",
+          "strong": "Names biases and mitigations."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "It is useful for qualities that are hard to check with code — helpfulness, tone, whether an answer is supported by sources — at a scale humans cannot label. I keep it honest by giving the judge a specific rubric and the reference material, asking for a score with a short justification, calibrating it against a set of human-labelled examples, watching for known biases like preferring longer answers or answers from the same model, and keeping deterministic checks wherever possible.",
+      "tags": [
+        "evals",
+        "llm as judge"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Scale and speed versus bias and drift."
+      ]
+    },
+    {
+      "deepDive": "Techniques: deterministic checks first (schema, required fields, citations present); record-and-replay for unchanged prompts; run only affected eval suites based on changed files; parallelize; cap cost per run; treat flaky cases by investigating variance (multiple samples, majority) rather than deleting them; publish a report artifact; block merges on regressions beyond tolerance; require human sign-off for safety-related failures.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a release gate runs golden goals for an agent and posts a pass/fail board; a prompt change that dropped plan correctness on two goals is blocked until fixed.",
+      "followUps": [
+        "How do you handle a legitimately non-deterministic case?"
+      ],
+      "format": "subjective",
+      "id": "evals-ci-gates",
+      "intent": "Engineering pragmatism.",
+      "mistakes": [
+        "Running the full expensive eval on every commit.",
+        "Exact-string assertions on model output."
+      ],
+      "question": "How do you put LLM evals into CI without making the pipeline slow, flaky and expensive?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Tiering",
+          "strong": "Fast smoke vs full eval."
+        },
+        {
+          "criterion": "Stability",
+          "strong": "Baselines and tolerances."
+        },
+        {
+          "criterion": "Cost control",
+          "strong": "Replay, selective runs, caps."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Tier them. A small, fast smoke set with deterministic assertions runs on every pull request against cached or mocked responses where possible. A larger eval with real model calls runs on changes to prompts, models or retrieval, and nightly. Gates use thresholds with tolerances and compare against the main branch's baseline rather than demanding perfection, and results are stored so trends are visible.",
+      "tags": [
+        "evals",
+        "ci",
+        "regression"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Coverage versus speed and cost."
+      ]
+    },
+    {
+      "deepDive": "Use structured spans (one per model call and tool call), sampling for high-volume paths, retention policies matching privacy rules, and dashboards for latency percentiles, error rates, cost and step counts. Link traces to eval cases so a production failure can become a regression test in one click.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: cost metrics per agent run plus an audit ledger let an engineer find that one tenant's runs were 3× more expensive because a tool returned full catalogs instead of visible rows.",
+      "followUps": [
+        "How do you redact PII in traces?"
+      ],
+      "format": "subjective",
+      "id": "evals-tracing",
+      "intent": "Observability fundamentals.",
+      "mistakes": [
+        "Logging raw PII or secrets in traces.",
+        "No version info in traces."
+      ],
+      "question": "What should you trace for an LLM agent in production?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Completeness",
+          "strong": "Model, prompt, tools, retrieval, cost."
+        },
+        {
+          "criterion": "Privacy",
+          "strong": "Redaction and retention."
+        },
+        {
+          "criterion": "Use",
+          "strong": "Debugging and aggregate metrics."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "For each run: a trace ID linking every step; the prompt and model version; inputs and outputs (with PII redaction); tool calls with arguments, results, latency and errors; token usage and cost; retrieval results with document IDs; approvals; the final outcome; and user feedback. That lets me debug a single bad run and aggregate metrics like success rate, cost per task and failure types.",
+      "tags": [
+        "observability",
+        "tracing",
+        "cost"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Detail versus privacy and storage cost."
+      ]
+    },
+    {
+      "deepDive": "Steps: define success clearly; sample failures (and some successes); open coding of failure reasons, then consolidate into a taxonomy; quantify; trace each category to a pipeline stage; prioritise by frequency × severity × fixability; implement the fix; verify on the eval; monitor. Repeat regularly as traffic changes.",
+      "difficulty": "senior",
+      "example": "Hypothetical: of 40 failures, 22 were retrieval misses on product codes, which led to adding keyword search; generation prompt changes would have wasted effort.",
+      "followUps": [
+        "How large a sample do you read?"
+      ],
+      "format": "subjective",
+      "id": "evals-error-analysis",
+      "intent": "Systematic quality improvement.",
+      "mistakes": [
+        "Changing prompts before knowing the failure distribution."
+      ],
+      "question": "Describe your error-analysis process when an LLM feature underperforms.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Process",
+          "strong": "Sample, categorise, count, prioritise."
+        },
+        {
+          "criterion": "Pipeline mapping",
+          "strong": "Links failures to stages."
+        },
+        {
+          "criterion": "Loop",
+          "strong": "Adds cases and re-measures."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "I collect a sample of failing cases, read them, and label each with a failure category — retrieval missed, wrong tool, ignored instruction, formatting, hallucinated fact, ambiguous request. Then I count the categories and fix the biggest bucket first, add those cases to the eval set, and re-measure. Reading real traces beats guessing.",
+      "tags": [
+        "evals",
+        "error analysis"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Manual reading takes time but prevents misdirected fixes."
+      ]
+    },
+    {
+      "deepDive": "Metrics: task success rate, partial credit, safety violations (must be zero), unnecessary writes, step count, cost, latency, recovery rate after injected failures. Test environments: seeded fixtures, mocked external APIs, fault injection (timeouts, permission errors). Compare variants on the same task set; check variance with repeated runs.",
+      "difficulty": "staff",
+      "example": "Hypothetical: golden goals such as \"find SKU X and finalize its mapping\" are run against fixture data; the harness checks the final record state, that the plan was approved before writes, and that no other record changed.",
+      "followUps": [
+        "How do you build resettable fixtures for an external SaaS?"
+      ],
+      "format": "subjective",
+      "id": "evals-agent-metrics",
+      "intent": "Agent-specific evaluation.",
+      "mistakes": [
+        "Trusting the agent's self-reported success.",
+        "Ignoring safety in favour of completion."
+      ],
+      "question": "How do you evaluate an agent that performs multi-step tasks, not just single answers?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Outcome",
+          "strong": "Verified final state."
+        },
+        {
+          "criterion": "Trajectory",
+          "strong": "Safety, efficiency, approvals."
+        },
+        {
+          "criterion": "Environment",
+          "strong": "Sandboxed, reproducible, fault injection."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "I evaluate outcomes and trajectories. Outcome: did it achieve the goal, verified against the final state of the environment, not the agent's own claim. Trajectory: did it take reasonable, safe steps — right tools, no unnecessary or forbidden actions, approvals requested where required — and how many steps, tokens and how much time it used. I run tasks in a sandboxed environment with resettable fixtures so runs are reproducible.",
+      "tags": [
+        "evals",
+        "agents",
+        "metrics"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Realistic environments are expensive to build; toy ones miss real failure modes."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Offline evals make monitoring unnecessary.",
+        "Offline evals gate releases; online monitoring finds new failures that become offline cases.",
+        "Monitoring replaces evals.",
+        "They measure the same thing."
+      ],
+      "deepDive": "Offline sets cannot cover all real inputs; production signals (feedback, success metrics, traces) reveal new failure modes.",
+      "difficulty": "intermediate",
+      "example": "A drop in thumbs-up rate after a model update led to 15 new offline cases.",
+      "followUps": [
+        "What online signals do you trust?"
+      ],
+      "format": "objective",
+      "id": "evals-online-offline-objective",
+      "intent": "Objective.",
+      "mistakes": [
+        "Relying only on one of the two."
+      ],
+      "question": "Which statement best describes the relationship between offline evals and online monitoring?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses complementary roles."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Offline evals gate changes before release on a controlled dataset; online monitoring measures real behaviour after release and feeds new failure cases back into the offline set. You need both.",
+      "tags": [
+        "evals",
+        "monitoring"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Switch to temperature 1.",
+        "Tighten the rubric, control for length and calibrate against human labels.",
+        "Only evaluate short answers.",
+        "Use the same model as both generator and judge."
+      ],
+      "deepDive": "Verbosity bias is a known judge bias; explicit criteria and calibration reduce it.",
+      "difficulty": "intermediate",
+      "example": "After adding \"concise and complete\" criteria, judge–human agreement improved on the calibration set.",
+      "followUps": [
+        "What other judge biases exist?"
+      ],
+      "format": "objective",
+      "id": "evals-judge-bias-objective",
+      "intent": "Objective bias handling.",
+      "mistakes": [
+        "Ignoring the bias."
+      ],
+      "question": "Your LLM judge consistently prefers longer answers. What is the best mitigation?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Rubric + calibration."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Tighten the rubric to the criteria that matter (including penalising unnecessary length), use pairwise comparisons with length controls, and calibrate against human labels.",
+      "tags": [
+        "evals",
+        "llm as judge"
+      ],
+      "topic": "Evaluation & observability",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "None."
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "title": "MCP, Claude Code tooling and evaluation",
+  "track": "applied-ai"
+}

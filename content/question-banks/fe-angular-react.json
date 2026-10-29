@@ -1,0 +1,897 @@
+{
+  "description": "Change detection, signals, RxJS flattening, subscriptions, DI, large-app architecture, grid performance, standalone migration; React effects, keys, stale closures, transitions, server components and forms. Examples are illustrative scenarios written for practice, not claims about anyone's work history.",
+  "id": "fe-angular-react",
+  "questions": [
+    {
+      "deepDive": "Practical rules: use OnPush broadly with immutable inputs; avoid mutating arrays or objects passed as inputs (OnPush will not notice); prefer async pipe or signals over manual subscribe-and-assign; use computed signals for derived state; effects only for side effects such as syncing to storage. Migrating to zoneless requires that state changes go through signals, async pipe, or explicit markForCheck, because zone-triggered detection disappears.",
+      "difficulty": "senior",
+      "example": "A large AG Grid screen re-rendered expensive cell templates on every mouse move under Default; OnPush plus immutable row updates and trackBy cut change-detection time sharply in the profiler (example scenario; quote your own measured numbers only).",
+      "followUps": [
+        "How would you migrate a large app to zoneless?",
+        "When do you still need RxJS with signals?"
+      ],
+      "format": "subjective",
+      "id": "ng-change-detection",
+      "intent": "Core Angular architecture knowledge.",
+      "mistakes": [
+        "Mutating input arrays under OnPush and wondering why the view does not update.",
+        "Using effects to derive state."
+      ],
+      "question": "Explain Angular change detection with Default versus OnPush, and how signals change the picture.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanics",
+          "strong": "Default vs OnPush triggers."
+        },
+        {
+          "criterion": "Signals",
+          "strong": "Fine-grained reactivity and zoneless."
+        },
+        {
+          "criterion": "Practice",
+          "strong": "Immutable updates, async pipe, computed."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: skipping component subtrees (OnPush)",
+          "url": "https://angular.dev/best-practices/skipping-subtrees"
+        },
+        {
+          "title": "Angular: signals guide",
+          "url": "https://angular.dev/guide/signals"
+        },
+        {
+          "title": "Angular: zoneless",
+          "url": "https://angular.dev/guide/zoneless"
+        }
+      ],
+      "spokenAnswer": "With the default strategy, after events, timers and HTTP callbacks — tracked by zone.js — Angular checks every component's bindings in the tree. OnPush lets a component be skipped unless an input reference changes, an event originates inside it, an async pipe emits or it is explicitly marked for check. Signals make reactivity explicit: templates that read signals are marked for refresh when those signals change, which enables finer-grained updates and zoneless applications where zone.js is no longer needed to trigger detection.",
+      "tags": [
+        "angular",
+        "change detection",
+        "signals",
+        "performance"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "OnPush and signals improve performance but require disciplined immutable updates."
+      ]
+    },
+    {
+      "deepDive": "Cancellation in switchMap unsubscribes from the inner observable; with HttpClient that aborts the request. mergeMap can take a concurrency argument to limit parallelism. Choosing wrong causes race conditions (stale search results with mergeMap) or lost work (switchMap on saves). Combine with debounceTime, distinctUntilChanged, catchError inside the inner pipe so one error does not kill the outer stream.",
+      "difficulty": "intermediate",
+      "example": "```ts\nanswer$ = this.prompt$.pipe(\n  debounceTime(300), distinctUntilChanged(),\n  switchMap(p => this.api.ask(p).pipe(catchError(e => of({ kind: 'error', e })))),\n);\n```",
+      "followUps": [
+        "How would you show a loading state per request?"
+      ],
+      "format": "subjective",
+      "id": "ng-rxjs-flattening",
+      "intent": "RxJS operator judgement.",
+      "mistakes": [
+        "Using mergeMap for search and showing stale results.",
+        "catchError on the outer stream, ending it after the first error."
+      ],
+      "question": "When do you use switchMap, mergeMap, concatMap and exhaustMap? Give a UI example for each.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Semantics",
+          "strong": "Correct for all four."
+        },
+        {
+          "criterion": "Examples",
+          "strong": "Fitting UI example each."
+        },
+        {
+          "criterion": "Pitfalls",
+          "strong": "Error placement and races."
+        }
+      ],
+      "sources": [
+        {
+          "title": "RxJS: switchMap",
+          "url": "https://rxjs.dev/api/operators/switchMap"
+        }
+      ],
+      "spokenAnswer": "They differ in what happens when a new value arrives while the previous inner request is still running. switchMap cancels the previous one — perfect for search-as-you-type or \"regenerate answer\". mergeMap runs them in parallel — fine for independent uploads. concatMap queues them in order — saving edits that must apply sequentially. exhaustMap ignores new values until the current one finishes — a submit button that must not double-submit.",
+      "tags": [
+        "angular",
+        "rxjs",
+        "concurrency"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None; each fits a different concurrency semantics."
+      ]
+    },
+    {
+      "deepDive": "Patterns: async pipe for template-bound streams; toSignal for state; takeUntilDestroyed() in an injection context or with an explicit DestroyRef; avoid nested subscribes — compose with operators; HTTP observables complete on their own but still benefit from cancellation on destroy; interval and fromEvent never complete and must be torn down.",
+      "difficulty": "intermediate",
+      "example": "Replacing manual subscriptions in a grid screen with toSignal and takeUntilDestroyed removed a detached-component leak visible in heap snapshots (example scenario).",
+      "followUps": [
+        "When is a manual subscribe still appropriate?"
+      ],
+      "format": "subjective",
+      "id": "ng-subscriptions",
+      "intent": "Practical memory hygiene.",
+      "mistakes": [
+        "Nested subscribes.",
+        "Manual Subscription arrays forgotten in ngOnDestroy."
+      ],
+      "question": "How do you manage subscriptions in modern Angular to avoid leaks?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Preferred",
+          "strong": "async pipe / toSignal."
+        },
+        {
+          "criterion": "Teardown",
+          "strong": "takeUntilDestroyed and DestroyRef."
+        },
+        {
+          "criterion": "Awareness",
+          "strong": "Non-completing streams."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: signals guide",
+          "url": "https://angular.dev/guide/signals"
+        }
+      ],
+      "spokenAnswer": "Prefer not to subscribe manually: use the async pipe in templates, or convert observables to signals with toSignal, which handles teardown. When I must subscribe in code, I use takeUntilDestroyed tied to the component's DestroyRef so the subscription ends automatically. Long-lived services subscribe only to things whose lifetime matches the service.",
+      "tags": [
+        "angular",
+        "rxjs",
+        "memory"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None significant."
+      ]
+    },
+    {
+      "deepDive": "Other tools: route-level providers for feature-scoped singletons with lazy loading; injection tokens for configuration and multiple implementations; resolution modifiers (optional, self, skipSelf, host); factory providers; inject() function in injection contexts. Pitfalls: accidentally providing a service in a lazy route and getting two instances where you expected one, or putting per-widget state in a root singleton so two widgets share state.",
+      "difficulty": "senior",
+      "example": "A copilot SDK provides a ChatSession service at the component level so two copilot panels on one page keep separate conversations, while the HTTP client and config are root-level.",
+      "followUps": [
+        "How do you make a library configurable via DI?"
+      ],
+      "format": "subjective",
+      "id": "ng-di-hierarchy",
+      "intent": "DI architecture.",
+      "mistakes": [
+        "Per-instance state in root singletons.",
+        "Unintended duplicate instances in lazy modules."
+      ],
+      "question": "Explain Angular's hierarchical dependency injection and when you would provide a service at component level.",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanics",
+          "strong": "Injector tree resolution."
+        },
+        {
+          "criterion": "Scoping",
+          "strong": "Component, route, root use cases."
+        },
+        {
+          "criterion": "Pitfalls",
+          "strong": "Duplicate or shared state."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: hierarchical injectors",
+          "url": "https://angular.dev/guide/di/hierarchical-dependency-injection"
+        }
+      ],
+      "spokenAnswer": "Angular resolves a dependency by walking up the injector tree: element injectors from the component upwards, then environment injectors such as route-level and root. providedIn root gives one application-wide singleton. Providing a service in a component creates a separate instance for that component and its children, which is right for state that belongs to one widget instance — for example each open chat panel or each editable grid having its own store.",
+      "tags": [
+        "angular",
+        "dependency injection",
+        "architecture"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Scoped instances isolate state but increase memory and complexity."
+      ]
+    },
+    {
+      "deepDive": "Elements: standalone components and lazy routes; library types (feature, ui, data-access, util) with dependency constraints; typed API clients generated from contracts; a design system with versioning and accessibility built in; shared state kept minimal — prefer URL and server state; module federation or micro-frontends only when deployment independence is truly required; performance budgets per route; ownership files; ADRs. Migration of legacy parts by strangler pattern route by route.",
+      "difficulty": "staff",
+      "example": "Hypothetical: a product suite with retailer and supplier portals shares a component library and mapping UI package; each portal is a separate app consuming versioned libraries.",
+      "followUps": [
+        "When would you choose micro-frontends?",
+        "How do you enforce boundaries?"
+      ],
+      "format": "subjective",
+      "id": "ng-large-app-architecture",
+      "intent": "Frontend architecture leadership.",
+      "mistakes": [
+        "Organising by layers (all services in one folder).",
+        "A giant shared module everyone imports."
+      ],
+      "question": "How do you structure a large multi-team Angular application so teams can move independently?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Boundaries",
+          "strong": "Domain-based, public APIs."
+        },
+        {
+          "criterion": "Enforcement",
+          "strong": "Dependency rules in CI."
+        },
+        {
+          "criterion": "Leadership",
+          "strong": "ADRs, ownership, migration strategy."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "I draw boundaries by business domain, not by technical layer. Each domain owns its routes, features, state and UI, loaded lazily, and exposes a small public API. Shared code lives in explicit libraries — design system, data access clients, utilities — with enforced dependency rules so features cannot import each other's internals. CI enforces the boundaries, and architecture decisions are recorded so teams understand the why.",
+      "tags": [
+        "angular",
+        "architecture",
+        "monorepo",
+        "leadership"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Strict boundaries slow quick cross-cutting changes but reduce coupling long term."
+      ]
+    },
+    {
+      "deepDive": "Also check network: many small requests per row (N+1 patterns) can dominate; batch or scope requests to visible rows. Watch for layout thrashing from reading and writing DOM sizes in loops. Measure again after each change and keep a performance budget test for the screen.",
+      "difficulty": "senior",
+      "example": "Example of the N+1 pattern: a screen-context reader issuing hundreds of option lookups for a region that only showed a few dozen rows caused long freezes; scoping reads to visible rows removed the freeze. (If you use your own story here, state only what you actually measured.)",
+      "followUps": [
+        "How do you keep a virtualised grid accessible?"
+      ],
+      "format": "subjective",
+      "id": "ng-grid-performance",
+      "intent": "Performance engineering in data-dense UIs.",
+      "mistakes": [
+        "Optimising without profiling.",
+        "Function calls in templates that run on every check."
+      ],
+      "question": "An Angular screen with a data grid of 10,000 rows is slow. How do you diagnose and fix it?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Diagnosis",
+          "strong": "Profiler-first approach."
+        },
+        {
+          "criterion": "Fixes",
+          "strong": "Virtualisation, OnPush, trackBy, batching."
+        },
+        {
+          "criterion": "Verification",
+          "strong": "Re-measure and budgets."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: skipping component subtrees (OnPush)",
+          "url": "https://angular.dev/best-practices/skipping-subtrees"
+        }
+      ],
+      "spokenAnswer": "Measure first with the browser performance profiler and Angular DevTools to see whether the time goes into change detection, rendering, layout or data processing. Typical fixes: virtual scrolling or the grid's row virtualisation so only visible rows render, OnPush with immutable updates, trackBy for lists, moving heavy formatting into pure pipes or precomputed fields, debouncing filters, server-side pagination or filtering for very large data, and avoiding per-cell subscriptions or function calls in templates.",
+      "tags": [
+        "angular",
+        "performance",
+        "grids",
+        "virtual scroll"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Virtualisation can break browser find-in-page and some accessibility expectations; provide alternatives."
+      ]
+    },
+    {
+      "deepDive": "Guidelines: computed() for derivations; avoid effects that write other signals (cycles and glitches); a streaming AI response can be an observable of chunks reduced into a signal of state; resource-style APIs may cover simple fetches. Team consistency matters more than purity — document the conventions.",
+      "difficulty": "intermediate",
+      "example": "```ts\nconst query = signal('');\nconst results = toSignal(toObservable(query).pipe(debounceTime(250), switchMap(q => api.search(q))), { initialValue: [] });\n```",
+      "followUps": [
+        "How would you model a streaming chat reply?"
+      ],
+      "format": "subjective",
+      "id": "ng-signals-rxjs-interop",
+      "intent": "Modern Angular state design.",
+      "mistakes": [
+        "Re-implementing debounce/cancellation with effects.",
+        "Exposing raw observables everywhere in templates."
+      ],
+      "question": "Signals or RxJS: how do you decide, and how do they work together?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Fit",
+          "strong": "Sync state vs async streams."
+        },
+        {
+          "criterion": "Interop",
+          "strong": "toSignal/toObservable."
+        },
+        {
+          "criterion": "Conventions",
+          "strong": "Team guidance."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: signals guide",
+          "url": "https://angular.dev/guide/signals"
+        }
+      ],
+      "spokenAnswer": "Signals are best for synchronous state that the template reads — current selection, form-derived values, computed totals. RxJS is best for asynchronous event streams with time and concurrency semantics — debounced search, websockets, retries, cancellation. They interoperate: toSignal turns an observable into a signal for the template, and toObservable lets a signal drive an RxJS pipeline. I keep async orchestration in RxJS and expose results as signals.",
+      "tags": [
+        "angular",
+        "signals",
+        "rxjs"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Two paradigms increase cognitive load; conventions mitigate."
+      ]
+    },
+    {
+      "deepDive": "Benefits: simpler mental model, better tree-shaking, clearer dependencies per component, easier lazy loading. Watch for providers declared in modules that must move to route or environment providers, and third-party libraries that still ship modules (importable directly into standalone components). Combine with the upgrade path to the latest Angular version first if far behind.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: a supplier portal migrated one feature area per sprint; module-level providers moved to route providers, and bundle size of lazy routes dropped.",
+      "followUps": [
+        "What happens to forRoot/forChild patterns?"
+      ],
+      "format": "subjective",
+      "id": "ng-standalone-migration",
+      "intent": "Migration pragmatism.",
+      "mistakes": [
+        "Big-bang migration without tests.",
+        "Losing providers that were registered in modules."
+      ],
+      "question": "How would you migrate an NgModule-based Angular app to standalone components?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Plan",
+          "strong": "Incremental, schematic-assisted."
+        },
+        {
+          "criterion": "Risks",
+          "strong": "Providers and third-party modules."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Incrementally, using Angular's schematic for standalone migration in steps: convert declarations to standalone, remove unnecessary NgModules, then switch bootstrapping to the standalone API. I run it library by library with tests green after each step, keep lazy-loaded routes working, and update shared modules into small exported collections or individual imports.",
+      "tags": [
+        "angular",
+        "standalone",
+        "migration"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Short-term churn versus long-term simplicity."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "The child updates immediately.",
+        "The child typically does not update because the reference is unchanged.",
+        "Angular throws an error.",
+        "The parent stops updating."
+      ],
+      "deepDive": "OnPush compares input references; mutation keeps the same reference.",
+      "difficulty": "foundation",
+      "example": "Switching to immutable updates fixed a \"list not refreshing\" bug.",
+      "followUps": [
+        "What else triggers an OnPush check?"
+      ],
+      "format": "objective",
+      "id": "ng-onpush-objective",
+      "intent": "Objective OnPush check.",
+      "mistakes": [
+        "Calling detectChanges everywhere as a workaround."
+      ],
+      "question": "An OnPush child receives an array input. The parent does `this.items.push(x)`. What happens?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses no update due to same reference."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Angular: skipping component subtrees (OnPush)",
+          "url": "https://angular.dev/best-practices/skipping-subtrees"
+        }
+      ],
+      "spokenAnswer": "The child usually does not update, because the input reference did not change; create a new array (`this.items = [...this.items, x]`) or use signals.",
+      "tags": [
+        "angular",
+        "onpush"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "mergeMap",
+        "switchMap",
+        "concatMap",
+        "exhaustMap"
+      ],
+      "deepDive": "exhaustMap would ignore the second click; mergeMap would run both; concatMap would queue.",
+      "difficulty": "foundation",
+      "example": "regenerate$.pipe(switchMap(() => api.generate()))",
+      "followUps": [
+        "Which operator prevents double submit?"
+      ],
+      "format": "objective",
+      "id": "ng-switchmap-objective",
+      "intent": "Objective RxJS check.",
+      "mistakes": [
+        "Using mergeMap and rendering interleaved streams."
+      ],
+      "question": "A \"Regenerate answer\" button should cancel the in-flight request when clicked again. Which operator?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "switchMap."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "RxJS: switchMap",
+          "url": "https://rxjs.dev/api/operators/switchMap"
+        }
+      ],
+      "spokenAnswer": "switchMap — it unsubscribes from (cancels) the previous inner observable when a new click arrives.",
+      "tags": [
+        "rxjs"
+      ],
+      "topic": "Angular",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "deepDive": "Typical anti-patterns: effect that sets state from props; chains of effects updating each other; fetching without cleanup or race handling; effects that run on every render due to unstable dependencies. Better: derive during render; event handlers for actions; data-fetching libraries or framework loaders; cleanup functions with AbortController; stable callbacks only where needed.",
+      "difficulty": "intermediate",
+      "example": "Replacing an effect that copied `props.job` into local state with a `key={job.id}` on the editor component fixed stale form values when switching jobs.",
+      "followUps": [
+        "How do you handle fetch races in an effect?"
+      ],
+      "format": "subjective",
+      "id": "react-effects",
+      "intent": "Modern React idioms.",
+      "mistakes": [
+        "Deriving state in effects.",
+        "Missing cleanup for fetches."
+      ],
+      "question": "When should you not use useEffect in React?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Purpose",
+          "strong": "Effects are for external sync."
+        },
+        {
+          "criterion": "Alternatives",
+          "strong": "Derive, handlers, keys."
+        }
+      ],
+      "sources": [
+        {
+          "title": "React: You might not need an effect",
+          "url": "https://react.dev/learn/you-might-not-need-an-effect"
+        }
+      ],
+      "spokenAnswer": "useEffect is for synchronising with something outside React — subscriptions, the DOM, network, timers. I avoid it for deriving data from props or state (compute during render or with useMemo), for responding to user events (do it in the event handler), and for resetting state when a prop changes (use a key). Unnecessary effects cause extra renders, race conditions and stale-closure bugs.",
+      "tags": [
+        "react",
+        "hooks",
+        "effects"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None; fewer effects make code simpler."
+      ]
+    },
+    {
+      "deepDive": "Rules: keys must be stable and unique among siblings; never random keys (they remount every render); index keys are acceptable only for static lists. Resetting via key is better than effects that reset state.",
+      "difficulty": "intermediate",
+      "example": "A chat transcript keyed by message ID keeps each message's expanded-citation state when new messages arrive at the top.",
+      "followUps": [
+        "What happens to focus when a list item remounts?"
+      ],
+      "format": "subjective",
+      "id": "react-keys-state",
+      "intent": "Reconciliation model.",
+      "mistakes": [
+        "Index keys in reorderable lists.",
+        "Random keys."
+      ],
+      "question": "How do keys affect component state in React lists and when do you use a key to reset state?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Model",
+          "strong": "Type/position/key matching."
+        },
+        {
+          "criterion": "Practice",
+          "strong": "Stable IDs; key to reset."
+        }
+      ],
+      "sources": [
+        {
+          "title": "React: preserving and resetting state",
+          "url": "https://react.dev/learn/preserving-and-resetting-state"
+        }
+      ],
+      "spokenAnswer": "React matches elements between renders by type and position, or by key when provided. Stable, unique keys from data IDs keep each item's state attached to the right item when the list reorders. Using array indexes as keys breaks this when items are inserted or removed. Changing a component's key deliberately makes React discard and recreate it, which is the clean way to reset internal state when switching to a different entity.",
+      "tags": [
+        "react",
+        "reconciliation",
+        "keys"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Remounting resets state but costs rendering work."
+      ]
+    },
+    {
+      "deepDive": "Also: keep dependencies honest in effects; use useReducer for complex state transitions such as streaming → approval → done; for handlers that must always see the latest props without re-subscribing, store them in a ref updated each render (the \"latest ref\" pattern).",
+      "difficulty": "intermediate",
+      "example": "```tsx\nreader.onChunk = (c) => setReply(r => ({ ...r, text: r.text + c }));\n```",
+      "followUps": [
+        "Why does a reducer help here?"
+      ],
+      "format": "subjective",
+      "id": "react-stale-closures",
+      "intent": "Hook mental model under async updates.",
+      "mistakes": [
+        "Disabling the exhaustive-deps lint rule to make warnings go away."
+      ],
+      "question": "What is a stale closure in React hooks, and how do you fix one in a streaming chat component?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Captured render values."
+        },
+        {
+          "criterion": "Fix",
+          "strong": "Functional updates/reducer/refs."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Each render creates functions that capture that render's props and state. If a long-lived callback — an interval, a stream handler started in an effect — captured the first render's state, it keeps seeing old values. In a streaming chat, appending chunks with `setText(text + chunk)` inside such a handler loses updates. The fix is the functional update `setText(t => t + chunk)`, or a reducer, or a ref for values that must be read without re-rendering.",
+      "tags": [
+        "react",
+        "hooks",
+        "streaming"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Refs avoid re-renders but bypass React state tracking — use sparingly."
+      ]
+    },
+    {
+      "deepDive": "useTransition returns a pending flag for subtle loading indicators; useDeferredValue defers a value derived from fast-changing input. Suspense boundaries should match meaningful UI regions; avoid nested spinners. These do not make computation cheaper — combine with memoisation, virtualisation or workers for heavy work.",
+      "difficulty": "senior",
+      "example": "Filtering 5,000 saved jobs on each keystroke: wrapping the filter state update in startTransition keeps the input responsive and shows a subtle pending indicator.",
+      "followUps": [
+        "When would you use useDeferredValue instead?"
+      ],
+      "format": "subjective",
+      "id": "react-transitions",
+      "intent": "Concurrent rendering features.",
+      "mistakes": [
+        "Using transitions for urgent updates like input value."
+      ],
+      "question": "How do transitions and Suspense help keep an AI-heavy React UI responsive?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concepts",
+          "strong": "Urgent vs non-urgent; Suspense fallbacks."
+        },
+        {
+          "criterion": "Application",
+          "strong": "AI/large-list example."
+        },
+        {
+          "criterion": "Limits",
+          "strong": "Not a substitute for cheaper computation."
+        }
+      ],
+      "sources": [
+        {
+          "title": "React: useTransition",
+          "url": "https://react.dev/reference/react/useTransition"
+        }
+      ],
+      "spokenAnswer": "Transitions mark state updates as non-urgent, so typing stays responsive while React prepares an expensive re-render, such as filtering a big result list, in the background and can interrupt it. Suspense lets parts of the UI show a fallback while code or data loads, with streaming server rendering sending ready parts first. Together they keep urgent interactions — typing a prompt, pressing stop — immediate.",
+      "tags": [
+        "react",
+        "concurrency",
+        "suspense"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Smoother UX versus added mental model."
+      ]
+    },
+    {
+      "deepDive": "Trade-offs: smaller bundles and secure data access versus framework coupling, a new mental model for boundaries and serialization, caching subtleties and debugging complexity. Not available in a plain static SPA — this project intentionally stays a static Vite SPA because it has no backend.",
+      "difficulty": "senior",
+      "example": "Hypothetical: a docs assistant renders the conversation history list as server components and the live composer, stream renderer and approval dialogs as client components.",
+      "followUps": [
+        "Where do you put the model API key in this architecture?"
+      ],
+      "format": "subjective",
+      "id": "react-server-components",
+      "intent": "Framework-architecture judgement.",
+      "mistakes": [
+        "Putting interactive streaming state into server components.",
+        "Assuming RSC works without a server."
+      ],
+      "question": "What are React Server Components, and what trade-offs do they bring for an AI chat product?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Concept",
+          "strong": "Server-rendered components, client boundaries."
+        },
+        {
+          "criterion": "Trade-offs",
+          "strong": "Bundles, security vs complexity."
+        },
+        {
+          "criterion": "Fit",
+          "strong": "Applies to AI product correctly."
+        }
+      ],
+      "sources": [
+        {
+          "title": "React: Server Components",
+          "url": "https://react.dev/reference/rsc/server-components"
+        }
+      ],
+      "spokenAnswer": "Server Components render on the server and send a serialized result instead of JavaScript for that part of the tree, so data fetching and heavy dependencies stay on the server and the client bundle shrinks. Interactive parts remain Client Components. For an AI product, the server can safely hold API keys and fetch context, but streaming token-by-token interaction, cancellation and approvals are client-side concerns, so you need a clear boundary and a framework that supports it.",
+      "tags": [
+        "react",
+        "server components",
+        "architecture"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Performance and security versus complexity and lock-in."
+      ]
+    },
+    {
+      "deepDive": "Use a form library or schema-based validation shared with the server; mark AI-filled fields visibly until accepted; never auto-submit AI-filled forms; keep an audit of which fields were AI-suggested and accepted; accessibility: suggestions announced, accept/reject buttons keyboard reachable, errors linked to fields.",
+      "difficulty": "intermediate",
+      "example": "Hypothetical: AI suggests a field mapping with confidence; the user accepts named fields individually or bulk-accepts everything above a threshold; validation runs on the final mapping.",
+      "followUps": [
+        "How do you show suggestion confidence accessibly?"
+      ],
+      "format": "subjective",
+      "id": "react-forms",
+      "intent": "Form design with AI suggestions.",
+      "mistakes": [
+        "Silently overwriting user input with AI suggestions.",
+        "Validating only AI output, not the final value."
+      ],
+      "question": "Controlled or uncontrolled inputs: how do you choose, and how do you validate forms that include AI-suggested values?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Choice",
+          "strong": "Controlled vs uncontrolled criteria."
+        },
+        {
+          "criterion": "AI suggestions",
+          "strong": "Separate, accept/reject, validate."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Controlled inputs keep the value in React state — good when other UI depends on it live. Uncontrolled inputs keep it in the DOM and read it on submit — simpler and faster for large forms. For AI suggestions I keep the suggested value separate from the user's value, show it as a suggestion the user accepts per field or in bulk, and validate the final values with the same schema regardless of where they came from.",
+      "tags": [
+        "react",
+        "forms",
+        "ai ux"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Controlled flexibility versus uncontrolled simplicity."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Always; it never hurts.",
+        "When the component is expensive and re-renders with referentially stable, equal props.",
+        "Only for class components.",
+        "When props change on every render."
+      ],
+      "deepDive": "New object or function props on every parent render defeat memo.",
+      "difficulty": "foundation",
+      "example": "A heavy chart re-rendered on every keystroke until its data prop was memoised.",
+      "followUps": [
+        "How do you confirm the gain?"
+      ],
+      "format": "objective",
+      "id": "react-memo-objective",
+      "intent": "Objective memoisation check.",
+      "mistakes": [
+        "Memoising everything by default."
+      ],
+      "question": "When does wrapping a component in React.memo actually help?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses expensive + stable props."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "When the component is expensive to render, re-renders often with the same props, and the props are referentially stable (memoised callbacks/objects); otherwise the comparison adds cost for nothing.",
+      "tags": [
+        "react",
+        "performance"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "Comparison overhead."
+      ]
+    },
+    {
+      "answerIndex": 2,
+      "choices": [
+        "The array index",
+        "Math.random()",
+        "A stable unique message ID",
+        "The message text"
+      ],
+      "deepDive": "Index keys shift on insertion, attaching state to the wrong items.",
+      "difficulty": "foundation",
+      "example": "messages.map(m => <Message key={m.id} message={m} />)",
+      "followUps": [
+        "What breaks with index keys?"
+      ],
+      "format": "objective",
+      "id": "react-keys-objective",
+      "intent": "Objective keys check.",
+      "mistakes": [
+        "Index or random keys."
+      ],
+      "question": "Which key is best for a list of chat messages that can be inserted at the top?",
+      "roles": [
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Stable ID."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "React: preserving and resetting state",
+          "url": "https://react.dev/learn/preserving-and-resetting-state"
+        }
+      ],
+      "spokenAnswer": "A stable, unique message ID from the data, so each message keeps its own state when new messages are inserted.",
+      "tags": [
+        "react"
+      ],
+      "topic": "React",
+      "track": "frontend-fullstack",
+      "tradeoffs": [
+        "None."
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "title": "Angular and React",
+  "track": "frontend-fullstack"
+}

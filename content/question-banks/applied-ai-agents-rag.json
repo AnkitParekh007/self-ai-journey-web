@@ -1,0 +1,1079 @@
+{
+  "description": "Tool design, agent loops, workflows versus agents, approvals, durable state, multi-agent trade-offs, chunking, hybrid search, reranking, citations, RAG evaluation and permissions. Examples are illustrative scenarios written for practice, not claims about anyone's work history.",
+  "id": "applied-ai-agents-rag",
+  "questions": [
+    {
+      "deepDive": "Principles: (1) **granularity** — task-level tools (find_submission, publish_sku) beat raw primitives (http_request) for reliability and safety; (2) **descriptions** — say when to use and when not to use, with an example call; (3) **schemas** — required fields, enums, formats; (4) **outputs** — return only what the model needs, with stable IDs, truncated long text and pagination; (5) **errors** — return a message the model can act on (\"SKU not found; try search_skus\") instead of stack traces; (6) **risk classes** — mark tools as read-only or data-changing so the orchestrator can require approval; (7) **idempotency keys** for writes. Evaluate tool selection with test goals.",
+      "difficulty": "intermediate",
+      "example": "An in-app agent originally had a generic \"click element\" tool and often clicked the wrong thing. Replacing it with a generated catalog of deterministic action atoms (open_submission, find_sku, finalize_mapping), each with a schema and a read/write risk class, made plans auditable and approval-gated.",
+      "followUps": [
+        "How do you test that the model picks the right tool?",
+        "How do you version tools without breaking stored plans?"
+      ],
+      "format": "subjective",
+      "id": "agent-tool-design",
+      "intent": "Checks tool-interface design skill: granularity, naming, schemas, errors and safety.",
+      "mistakes": [
+        "Exposing raw database or shell access to the model.",
+        "Enforcing permissions only via prompt instructions.",
+        "Returning huge unfiltered payloads."
+      ],
+      "question": "How do you design the tools you give an LLM agent?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Interface",
+          "strong": "Clear names, schemas, descriptions."
+        },
+        {
+          "criterion": "Safety",
+          "strong": "Read/write classes and server-side enforcement."
+        },
+        {
+          "criterion": "Ergonomics",
+          "strong": "Concise outputs and actionable errors."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: tool use overview",
+          "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+        },
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "I design tools like a public API for a junior colleague who reads only the description. Each tool does one clear thing, has a precise name, a typed schema with enums and examples, and returns concise, structured results with actionable error messages. I keep the set small, separate read tools from write tools, and enforce permissions and validation in my code, not in the prompt.",
+      "tags": [
+        "tool calling",
+        "agents",
+        "api design"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Coarse task tools are safer but less flexible; primitives are flexible but error-prone.",
+        "More tools give more capability but increase selection errors and prompt size."
+      ]
+    },
+    {
+      "deepDive": "Controls: step cap; cost/token cap per run and per user per day; timeout; loop detection (same tool with same arguments twice, or no state change); progress checks; escalation to a human; checkpoints so a run can resume rather than restart; and kill switches by feature flag. Expose budgets in traces and alert on runs that hit caps frequently, which usually indicates a bad tool or prompt.",
+      "difficulty": "intermediate",
+      "example": "A planning agent hit its 15-step cap on about one run in twenty because a search tool returned empty results without guidance. Changing the tool error to suggest a broader query and adding repeat-action detection removed most cap hits.",
+      "followUps": [
+        "How would you choose the step cap?",
+        "What do you show the user when a cap is hit?"
+      ],
+      "format": "subjective",
+      "id": "agent-loop-termination",
+      "intent": "Operational control of autonomous loops.",
+      "mistakes": [
+        "Letting the model decide when it is done with no external limit.",
+        "Retrying the whole run on failure instead of resuming."
+      ],
+      "question": "How do you stop an agent loop from running forever or burning budget?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Budgets",
+          "strong": "Steps, cost and time limits."
+        },
+        {
+          "criterion": "Detection",
+          "strong": "Loop and no-progress detection."
+        },
+        {
+          "criterion": "Termination",
+          "strong": "Explicit terminal states enforced by the orchestrator."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "Every loop gets explicit budgets: maximum steps, maximum tokens or cost, and wall-clock time, plus detection of repeated identical actions. The agent must reach a defined terminal state — done, needs user input, or failed with a reason — and the orchestrator, not the model, enforces the limits and records why the run stopped.",
+      "tags": [
+        "agents",
+        "budgets",
+        "reliability"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Low caps prevent runaway cost but can stop legitimate long tasks.",
+        "Resumable checkpoints add storage and complexity."
+      ]
+    },
+    {
+      "deepDive": "Workflows (prompt chaining, routing, parallelization, orchestrator-worker with fixed roles) are easier to test, cheaper and predictable. Agents trade predictability for flexibility. Decision factors: variability of inputs, number of possible paths, reversibility of actions, latency budget, and ability to evaluate. For enterprise write paths, plan-first designs — the agent proposes a plan from a deterministic catalog, a human approves, the system executes and verifies — combine flexibility in planning with control in execution.",
+      "difficulty": "senior",
+      "example": "Hypothetical: an in-app assistant that edits customer records. A plan-first design with a deterministic action catalog, risk classes and approvals is slower to ship than free-form tool calling against the DOM, but it is safer and auditable — usually the right trade for data-changing operations.",
+      "followUps": [
+        "Describe a hybrid you have built or would build.",
+        "How do you evaluate an agent versus a workflow?"
+      ],
+      "format": "subjective",
+      "id": "agent-workflow-vs-agent",
+      "intent": "Judgement: avoiding agents when they are not needed.",
+      "mistakes": [
+        "Building a multi-agent system for a problem a single prompt chain solves.",
+        "Letting agents execute irreversible actions without approval."
+      ],
+      "question": "When would you build a deterministic workflow instead of an autonomous agent?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Engineering Lead"
+      ],
+      "rubric": [
+        {
+          "criterion": "Criteria",
+          "strong": "Names predictability, risk, auditability."
+        },
+        {
+          "criterion": "Hybrid",
+          "strong": "Shows workflow-with-agentic-step or plan-then-execute."
+        },
+        {
+          "criterion": "Example",
+          "strong": "Concrete, honest example."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "When the steps are known in advance, the cost of a mistake is high, or the process must be auditable and repeatable, I build a workflow: fixed steps where the LLM handles specific sub-tasks like extraction or drafting. I use an agent only when the path genuinely depends on what is discovered along the way and the action space can be safely bounded. Often the best answer is a workflow with one agentic step inside it.",
+      "tags": [
+        "agents",
+        "workflows",
+        "architecture"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Workflows are reliable but brittle for unanticipated cases.",
+        "Agents adapt but are harder to test and secure."
+      ]
+    },
+    {
+      "deepDive": "Key details: approvals bind to exact parameters (a plan hash), expire, and are tied to the user's identity; execution re-validates preconditions because data may have changed; each step is verified after execution; failures trigger re-planning rather than blind retries; partial completion is visible; and reversible actions offer undo where possible. In the UI: plan card with clear diff-like descriptions, keyboard-accessible approve/reject, progress per step, and a prominent stop button. Never let the model mark its own steps as approved.",
+      "difficulty": "senior",
+      "example": "Hypothetical incident: a type mismatch in the approval-expiry check makes every approval look expired, so runs stall. Containment is a per-environment kill switch; the fix ships with a regression test covering the approval lifecycle (issue, expire, consume, revoke). In an interview, describe only incidents that really happened to you.",
+      "followUps": [
+        "How do you prevent a plan from changing after approval?",
+        "How would you test approval logic?"
+      ],
+      "format": "subjective",
+      "id": "agent-hitl-approvals",
+      "intent": "Combines UX, backend enforcement and auditability.",
+      "mistakes": [
+        "Approval enforced only in the frontend.",
+        "Approving a vague natural-language plan rather than concrete parameters.",
+        "No audit trail."
+      ],
+      "question": "Design human-in-the-loop approval for an agent that can change customer data.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Risk model",
+          "strong": "Read vs write classes."
+        },
+        {
+          "criterion": "Enforcement",
+          "strong": "Server-side binding to approved parameters, re-checks, audit."
+        },
+        {
+          "criterion": "UX",
+          "strong": "Clear plan, progress, stop."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "I classify every action by risk. Read and navigation actions run freely; data-changing actions require approval. The agent produces a plan the user can read — each step, its target and its effect — and the user approves the plan once or step by step. The server enforces the approval: it executes only steps that match an approved plan hash, re-checks permissions at execution time, records everything in an audit ledger, and lets the user stop the run at any point.",
+      "tags": [
+        "approvals",
+        "human in the loop",
+        "audit",
+        "agents"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Step-by-step approval is safer but tedious; plan-level approval needs very clear plan descriptions.",
+        "Strict expiry improves safety but can annoy users on slow tasks."
+      ]
+    },
+    {
+      "deepDive": "Building blocks: run ledger (append-only events per run), explicit states (planned, awaiting_approval, executing, waiting_input, completed, failed, cancelled), idempotent tools, outbox pattern for external effects, timeouts and leases on workers, retries with backoff for transient errors only, and compensation steps where undo exists. Durable execution engines (workflow orchestrators) can provide this, but the design principles matter more than the tool. Streaming to the client becomes a view over the ledger, so reconnects work.",
+      "difficulty": "staff",
+      "example": "A session expiring mid-run used to lose agent progress. Persisting the run ledger server-side and resuming from the last verified step on re-authentication solved it, and the UI shows \"resumed from step 4\".",
+      "followUps": [
+        "How do you handle a tool that succeeded but the result was never recorded?",
+        "What does cancel mean mid-step?"
+      ],
+      "format": "subjective",
+      "id": "agent-state-durable",
+      "intent": "Distributed-systems thinking applied to agents.",
+      "mistakes": [
+        "Keeping run state only in memory or in the browser.",
+        "Retrying non-idempotent writes."
+      ],
+      "question": "How do you make long-running agent workflows durable across crashes, deploys and user disconnects?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Persistence",
+          "strong": "State machine and ledger."
+        },
+        {
+          "criterion": "Idempotency",
+          "strong": "Keys and at-least-once reasoning."
+        },
+        {
+          "criterion": "Recovery",
+          "strong": "Resume and reconnect design."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "I model a run as a persisted state machine: each step's input, tool call, result and status is written to durable storage before moving on. Tool calls with side effects carry idempotency keys, so a resumed run never applies them twice. A worker can pick up a run from its last checkpoint after a crash, and the UI reconnects by run ID and replays progress instead of depending on a single open connection.",
+      "tags": [
+        "durable workflows",
+        "state",
+        "idempotency",
+        "agents"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Persistence adds latency and storage but enables recovery and audit.",
+        "Exactly-once is not achievable end-to-end; aim for idempotent at-least-once."
+      ]
+    },
+    {
+      "deepDive": "ReAct suits exploration (research, debugging, search with unknown structure). Plan-then-execute suits operations with side effects where a human or policy must approve beforehand, and where steps can be validated against a catalog. Hybrids: plan coarse steps, execute each with a small ReAct loop for lookups, and re-plan when verification fails. Cost: ReAct may use more calls; plan-first may waste a plan when early steps fail.",
+      "difficulty": "intermediate",
+      "example": "A research assistant uses ReAct to search and read sources; the data-changing agent in an enterprise portal uses plan-once approval with re-planning only when a step's verification fails.",
+      "followUps": [
+        "How does re-planning interact with approvals already given?"
+      ],
+      "format": "subjective",
+      "id": "agent-react-vs-plan",
+      "intent": "Understanding of agent control patterns.",
+      "mistakes": [
+        "Using ReAct for irreversible operations without approval gates."
+      ],
+      "question": "Compare ReAct-style interleaved reasoning and acting with plan-then-execute.",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Patterns",
+          "strong": "Accurately describes both."
+        },
+        {
+          "criterion": "Fit",
+          "strong": "Matches each to use cases."
+        },
+        {
+          "criterion": "Hybrid",
+          "strong": "Mentions combination."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Yao et al., ReAct (2022)",
+          "url": "https://arxiv.org/abs/2210.03629"
+        },
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "ReAct interleaves thinking, a tool call and an observation, step by step, so the agent adapts quickly to what it finds. Plan-then-execute first produces a full plan, which can be reviewed or approved, and then runs it, re-planning only on failure. ReAct is more adaptive; plan-then-execute is more predictable, cheaper to approve and easier to audit.",
+      "tags": [
+        "react",
+        "planning",
+        "agents"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Adaptivity versus predictability and approval cost."
+      ]
+    },
+    {
+      "deepDive": "Benefits: context isolation (each worker sees only what it needs), parallelism, specialised prompts and tool sets, separation of permissions. Costs: token multiplication, latency, information loss between agents, inconsistent decisions, harder debugging and tracing, and more attack surface. Good patterns: orchestrator-worker with structured hand-offs and summaries; verifier agents for checking outputs; limit inter-agent chatter. Require tracing that shows the full tree of calls.",
+      "difficulty": "staff",
+      "example": "For a document-review task, an orchestrator that spawns parallel readers per section and merges structured findings beat a single agent on long documents in an eval; for short documents the single agent was cheaper with equal quality, so routing decides based on document length.",
+      "followUps": [
+        "How would you trace and debug a multi-agent run?"
+      ],
+      "format": "subjective",
+      "id": "agent-multi-agent",
+      "intent": "Pushback skill and understanding of coordination costs.",
+      "mistakes": [
+        "Mapping org-chart roles to agents without a measured benefit.",
+        "Free-form agent-to-agent conversation without structure."
+      ],
+      "question": "Your team proposes a multi-agent architecture with six specialised agents. How do you evaluate the proposal?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Skepticism",
+          "strong": "Asks for a measured benefit."
+        },
+        {
+          "criterion": "Costs/benefits",
+          "strong": "Names both sides."
+        },
+        {
+          "criterion": "Pattern",
+          "strong": "Proposes orchestrator-worker or subagents with structured hand-offs."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Building effective agents",
+          "url": "https://www.anthropic.com/engineering/building-effective-agents"
+        }
+      ],
+      "spokenAnswer": "I ask what problem the split solves that one agent with good tools cannot. Multiple agents help when tasks are genuinely parallel or need isolated context, for example subagents exploring different parts of a large codebase. They cost more tokens, add coordination failure modes and are harder to evaluate. I would start with one agent or a fixed workflow, measure, and introduce a specialised subagent only where the eval shows a clear gain.",
+      "tags": [
+        "multi-agent",
+        "subagents",
+        "architecture"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Parallelism and isolation versus cost and coordination complexity."
+      ]
+    },
+    {
+      "deepDive": "Classify: transient (retry), caller error (repair by model), not found (re-plan), forbidden (stop, explain), conflict (re-read state, re-plan), unknown outcome (verify), and bug (fail run, alert). Avoid infinite repair loops with a per-step retry cap. Surface partial progress and offer the user choices. For data changes, verification after execution catches silent failures.",
+      "difficulty": "senior",
+      "example": "After a finalize-mapping step returned a timeout, the agent first read the mapping state: the change had applied, so it continued instead of re-running and creating duplicates.",
+      "followUps": [
+        "How do you distinguish a transient error from a persistent one?"
+      ],
+      "format": "subjective",
+      "id": "agent-error-recovery",
+      "intent": "Error taxonomy and recovery strategy.",
+      "mistakes": [
+        "Blind retries of non-idempotent writes.",
+        "Passing raw stack traces to the model."
+      ],
+      "question": "A tool call fails midway through an agent run. What should happen?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Taxonomy",
+          "strong": "Distinguishes error classes."
+        },
+        {
+          "criterion": "Safety",
+          "strong": "Idempotency and verification for unknown outcomes."
+        },
+        {
+          "criterion": "Visibility",
+          "strong": "Ledger and user reporting."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: tool use overview",
+          "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+        }
+      ],
+      "spokenAnswer": "It depends on the error class. Transient errors such as timeouts or rate limits get bounded retries with backoff, using the same idempotency key. Validation errors go back to the model with an actionable message so it can fix its arguments. Permission or policy errors stop that path and are reported to the user. Unknown outcomes — the call may or may not have applied — trigger a verification read before anything else. Every failure is recorded in the run ledger.",
+      "tags": [
+        "error handling",
+        "agents",
+        "idempotency"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "More automatic recovery improves completion rates but can hide systemic issues."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Three separate user turns.",
+        "Parallel tool calls in one turn, then combine.",
+        "One call that asks the model to guess all three.",
+        "Sequential calls with approval for each."
+      ],
+      "deepDive": "Independent read-only calls are safe to run concurrently, reducing latency. Dependent or data-changing calls should stay sequential with checks.",
+      "difficulty": "intermediate",
+      "example": "Parallel lookups reduced a travel assistant's response time noticeably without changing results.",
+      "followUps": [
+        "When must calls be sequential?"
+      ],
+      "format": "objective",
+      "id": "agent-parallel-tools-objective",
+      "intent": "Objective check on parallel independent tool calls.",
+      "mistakes": [
+        "Serializing independent reads unnecessarily.",
+        "Parallelizing dependent writes."
+      ],
+      "question": "An agent needs weather for three cities from a read-only API. What is the best orchestration choice?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses parallel independent reads."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: tool use overview",
+          "url": "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+        }
+      ],
+      "spokenAnswer": "Issue the three independent read calls in parallel (the model can request multiple tool calls in one turn), then combine results; there is no dependency between them.",
+      "tags": [
+        "tool calling",
+        "latency"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Parallel calls increase burst load on the API; respect rate limits."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "To make the call faster.",
+        "So retries of the same operation apply it at most once.",
+        "To authenticate the model.",
+        "To enable streaming."
+      ],
+      "deepDive": "Network failures make outcomes unknown. Idempotency keys turn at-least-once delivery into effectively-once effects for that operation.",
+      "difficulty": "intermediate",
+      "example": "A publish_sku tool with idempotency keys prevented duplicate publications when an agent retried after a gateway timeout.",
+      "followUps": [
+        "How long should keys be retained?"
+      ],
+      "format": "objective",
+      "id": "agent-idempotency-objective",
+      "intent": "Objective check on safe retries.",
+      "mistakes": [
+        "Using a new key for each retry, defeating the purpose."
+      ],
+      "question": "Why should a data-changing tool accept an idempotency key?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses at-most-once effect under retries."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "So that retrying the same logical operation after a timeout or crash applies it at most once: the server recognises the key and returns the original result instead of executing again.",
+      "tags": [
+        "idempotency",
+        "reliability"
+      ],
+      "topic": "Tool use & orchestration",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Requires server-side storage of keys and results for a retention window."
+      ]
+    },
+    {
+      "deepDive": "Trade-off: small chunks give precise matches but lose context; large chunks keep context but dilute similarity and waste prompt space. Techniques: structure-aware splitting, parent-child retrieval (retrieve small, send the parent section), prepending a short context sentence to each chunk (contextual retrieval) so isolated chunks remain interpretable, special handling for tables and code, and deduplication of boilerplate. Store provenance for citations. Re-chunking means re-embedding, so version the index.",
+      "difficulty": "intermediate",
+      "example": "For an HR policy corpus, fixed 500-token chunks split eligibility rules from their exceptions. Splitting by heading, adding the section path to each chunk, and retrieving the parent section improved recall on a 60-question eval set and made citations point to whole rules.",
+      "followUps": [
+        "How would you handle a 40-page table?",
+        "What is parent-document retrieval?"
+      ],
+      "format": "subjective",
+      "id": "rag-chunking",
+      "intent": "Practical retrieval design grounded in document structure and evaluation.",
+      "mistakes": [
+        "Picking a chunk size without measurement.",
+        "Losing headings and page numbers needed for citations.",
+        "Ignoring tables."
+      ],
+      "question": "How do you choose a chunking strategy for a document RAG system?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Structure",
+          "strong": "Uses document structure and metadata."
+        },
+        {
+          "criterion": "Trade-off",
+          "strong": "Explains size and overlap effects."
+        },
+        {
+          "criterion": "Evaluation",
+          "strong": "Tunes with a labelled set."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Contextual Retrieval",
+          "url": "https://www.anthropic.com/news/contextual-retrieval"
+        }
+      ],
+      "spokenAnswer": "I chunk by the document's natural structure — sections, headings, paragraphs, table rows — rather than fixed character counts, keep chunks big enough to be self-contained, add modest overlap, and attach metadata such as title, section path, page and access rights. Then I measure retrieval quality on a labelled question set and tune size and overlap from the results.",
+      "tags": [
+        "rag",
+        "chunking",
+        "retrieval"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Precision versus context; index size versus recall."
+      ]
+    },
+    {
+      "deepDive": "Implementation: run BM25 and vector retrieval in parallel, merge with reciprocal rank fusion or weighted scores, deduplicate, then rerank the top candidates with a cross-encoder or an LLM-based reranker. Tune weights with an eval set split by query type (exact identifier, conceptual, mixed). Filters on metadata (tenant, document type, date, permissions) apply before ranking.",
+      "difficulty": "intermediate",
+      "example": "Queries like \"error E-4031 on publish\" failed with vector-only search because the embedding treated the code as noise. Adding BM25 and fusion fixed identifier queries without hurting conceptual ones in the eval.",
+      "followUps": [
+        "How does reciprocal rank fusion work?",
+        "Where do access-control filters go?"
+      ],
+      "format": "subjective",
+      "id": "rag-hybrid-search",
+      "intent": "Understanding of retrieval failure modes.",
+      "mistakes": [
+        "Assuming embeddings handle identifiers.",
+        "Applying permission filters after retrieval and leaking snippets."
+      ],
+      "question": "Why use hybrid search (keyword plus vector) instead of vector search alone?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Failure modes",
+          "strong": "Explains what each method misses."
+        },
+        {
+          "criterion": "Mechanics",
+          "strong": "Describes merging and reranking."
+        },
+        {
+          "criterion": "Evaluation",
+          "strong": "Measures by query type."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Contextual Retrieval",
+          "url": "https://www.anthropic.com/news/contextual-retrieval"
+        }
+      ],
+      "spokenAnswer": "Vector search captures meaning but often misses exact terms — product codes, names, error messages, acronyms. Keyword search such as BM25 is excellent at exact terms but misses paraphrases. Combining both, then merging the ranked lists, gives better recall across query types, and a reranker can then order the merged candidates precisely.",
+      "tags": [
+        "rag",
+        "hybrid search",
+        "bm25"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "More retrieval paths increase latency and infrastructure.",
+        "Fusion weights need tuning per corpus."
+      ]
+    },
+    {
+      "deepDive": "Bi-encoders (embeddings) score query and document independently; cross-encoder rerankers attend over both jointly, which is more accurate but cannot be precomputed. Pipeline: retrieve top-k (e.g., 50) from hybrid search → rerank → keep top-n (e.g., 5–8) → generate. Measure with precision at n and answer quality. LLM-based reranking works but is slower and costlier; dedicated rerank models are typical.",
+      "difficulty": "intermediate",
+      "example": "Adding a reranker to a support-docs assistant let us send 5 passages instead of 15 with equal answer quality, cutting prompt size and latency of generation.",
+      "followUps": [
+        "How would you set k and n?"
+      ],
+      "format": "subjective",
+      "id": "rag-reranking",
+      "intent": "Understanding two-stage retrieval.",
+      "mistakes": [
+        "Reranking the entire corpus.",
+        "Skipping evaluation of whether reranking helps."
+      ],
+      "question": "What does a reranker add to a RAG pipeline, and what does it cost?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Purpose",
+          "strong": "Explains second-stage precision."
+        },
+        {
+          "criterion": "Cost",
+          "strong": "Latency and compute."
+        },
+        {
+          "criterion": "Tuning",
+          "strong": "k/n selection with evaluation."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Anthropic: Contextual Retrieval",
+          "url": "https://www.anthropic.com/news/contextual-retrieval"
+        }
+      ],
+      "spokenAnswer": "Initial retrieval is fast but approximate. A reranker looks at the query and each candidate together and scores relevance more accurately, so the few passages I actually send to the model are the best ones. The cost is extra latency and compute per candidate, so I rerank only the top few dozen results.",
+      "tags": [
+        "rag",
+        "reranking"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Accuracy versus added latency."
+      ]
+    },
+    {
+      "deepDive": "Steps: number passages in the prompt; require citations per sentence or claim; parse citations into structured data; reject or downgrade answers citing unknown IDs; optional entailment check (does the passage support the sentence?) with a smaller model or heuristics; show snippet previews; log citation coverage as a quality metric. For streaming, render citations as they arrive and resolve them once complete. Respect access control so citations never reveal documents the user cannot open.",
+      "difficulty": "senior",
+      "example": "Hypothetical: an in-app Ask feature that answers from on-screen context and docs returns citations as structured references; the client renders them as links to the doc section, and answers with zero valid citations are shown with a warning instead of as authoritative.",
+      "followUps": [
+        "How would you measure citation accuracy?",
+        "How do citations interact with permissions?"
+      ],
+      "format": "subjective",
+      "id": "rag-citations",
+      "intent": "Grounding, verification and UX.",
+      "mistakes": [
+        "Displaying citations the model invented.",
+        "Citations that point to a whole document instead of the passage."
+      ],
+      "question": "How do you implement trustworthy citations in a RAG answer?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect",
+        "Frontend Architect",
+        "Staff/Principal Engineer"
+      ],
+      "rubric": [
+        {
+          "criterion": "Mechanics",
+          "strong": "Stable IDs and structured citations."
+        },
+        {
+          "criterion": "Verification",
+          "strong": "Checks cited IDs and support."
+        },
+        {
+          "criterion": "UX",
+          "strong": "Inline sources and unsupported-claim handling."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Each retrieved passage gets a stable ID with source metadata. I ask the model to cite passage IDs for each claim, then verify in code that cited IDs were actually provided and, where possible, that quoted spans exist in those passages. The UI shows citations inline, opens the exact source location, and flags answers whose claims lack support.",
+      "tags": [
+        "citations",
+        "rag",
+        "grounding",
+        "ux"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Verification improves trust but adds latency and complexity.",
+        "Sentence-level citations clutter UI; claim-level grouping helps."
+      ]
+    },
+    {
+      "deepDive": "Build the dataset from real user questions where possible; include unanswerable and adversarial cases. Metrics: recall@k (did we retrieve the gold passage), precision@n, MRR; faithfulness (claims supported by context); answer relevance; citation precision/recall; abstention accuracy. Graders: exact or rule checks, LLM-as-judge with rubric and calibration against human labels, and human spot checks. Run in CI on changes to chunking, embeddings, prompts and models; track per-segment results.",
+      "difficulty": "senior",
+      "example": "A retrieval eval for a job-application assistant: 50 questions about postings and the profile, gold passage IDs, recall@5 tracked across chunking changes; generation graded on whether every factual claim maps to a profile evidence ID.",
+      "followUps": [
+        "How do you build gold labels cheaply?",
+        "How do you calibrate an LLM judge?"
+      ],
+      "format": "subjective",
+      "id": "rag-eval-metrics",
+      "intent": "Separating retrieval quality from generation quality.",
+      "mistakes": [
+        "Only evaluating final answers, so you cannot tell whether retrieval or generation failed.",
+        "No unanswerable questions."
+      ],
+      "question": "How do you evaluate a RAG system end to end?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Decomposition",
+          "strong": "Retrieval vs generation metrics."
+        },
+        {
+          "criterion": "Metrics",
+          "strong": "Names recall@k/MRR, faithfulness, abstention."
+        },
+        {
+          "criterion": "Process",
+          "strong": "Datasets, judges, CI."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "I evaluate retrieval and generation separately and together. For retrieval: a labelled set of questions with the passages that should be found, measured with recall at k and MRR. For generation: faithfulness to the provided passages, answer correctness against references, citation accuracy, and correct abstention on unanswerable questions. Then end-to-end task success, plus latency and cost.",
+      "tags": [
+        "evals",
+        "rag",
+        "metrics"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Labelled data is expensive; LLM judges are cheaper but biased."
+      ]
+    },
+    {
+      "deepDive": "Options: per-tenant indexes (strong isolation, more operational cost) or shared index with mandatory filters (cheaper, filter bugs are critical). Sync permissions from the source of truth and handle revocation latency. Avoid leaking through citations, snippets, cached answers or summaries generated from documents the user cannot see. Test with automated cross-tenant probes. Bring-your-own-key and data residency requirements may further force partitioning.",
+      "difficulty": "staff",
+      "example": "Hypothetical: a multi-tenant SaaS keeps tenant ID as a mandatory filter on every retrieval call, rejects queries without tenant context at the API layer, and runs a nightly cross-tenant probe test.",
+      "followUps": [
+        "How do you handle a permission revoked five minutes ago?"
+      ],
+      "format": "subjective",
+      "id": "rag-acl",
+      "intent": "Security-aware retrieval architecture.",
+      "mistakes": [
+        "Filtering after retrieval and showing snippets anyway.",
+        "Sharing answer caches across users with different permissions."
+      ],
+      "question": "How do you make RAG respect document permissions in a multi-tenant enterprise app?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Enforcement point",
+          "strong": "Retrieval-time filtering with identity."
+        },
+        {
+          "criterion": "Leak paths",
+          "strong": "Citations, caches, summaries."
+        },
+        {
+          "criterion": "Testing",
+          "strong": "Cross-tenant probes and audit."
+        }
+      ],
+      "sources": [
+        {
+          "title": "OWASP Top 10 for LLM Applications",
+          "url": "https://genai.owasp.org/llm-top-10/"
+        }
+      ],
+      "spokenAnswer": "Permissions are enforced at retrieval time, not in the prompt. Every chunk carries tenant and access metadata, the query runs with the caller's identity and filters applied inside the search, and results are re-checked against the source system's permissions before they reach the model. Caches and embeddings are partitioned by tenant, and audit logs record which documents were used.",
+      "tags": [
+        "rag",
+        "security",
+        "multi-tenant",
+        "authorization"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Isolation strength versus cost and complexity.",
+        "Permission freshness versus query latency."
+      ]
+    },
+    {
+      "deepDive": "Decision factors: corpus size versus window, update frequency, access control, cost per query, latency, need for precise citations, and observed quality. With prompt caching, a stable medium-size corpus in context can be economical. Evaluate both approaches on your task rather than assuming.",
+      "difficulty": "senior",
+      "example": "A single 80-page contract review uses long context with caching; a company-wide knowledge assistant over thousands of documents uses hybrid retrieval and sends whole sections.",
+      "followUps": [
+        "How would you run that comparison?"
+      ],
+      "format": "subjective",
+      "id": "rag-vs-long-context",
+      "intent": "Nuanced, non-dogmatic architecture judgement.",
+      "mistakes": [
+        "Dogmatic answers in either direction."
+      ],
+      "question": "Context windows keep growing. Is RAG still necessary?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Balance",
+          "strong": "Gives conditions for each."
+        },
+        {
+          "criterion": "Factors",
+          "strong": "Cost, freshness, permissions, citations."
+        },
+        {
+          "criterion": "Hybrid",
+          "strong": "Mentions combining."
+        }
+      ],
+      "sources": [
+        {
+          "title": "Liu et al., Lost in the Middle (2023)",
+          "url": "https://arxiv.org/abs/2307.03172"
+        }
+      ],
+      "spokenAnswer": "Often yes, but not always. RAG is about selecting relevant, permitted, fresh information cheaply and with citations. Long context removes the retrieval step for small or bounded corpora and for tasks that need global reading. For large, changing, permissioned corpora, retrieval is still cheaper, faster and easier to audit. Many systems combine both: retrieve candidate documents, then give the model whole documents rather than tiny chunks.",
+      "tags": [
+        "rag",
+        "long context",
+        "architecture"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Simplicity of long context versus scalability and control of retrieval."
+      ]
+    },
+    {
+      "deepDive": "Techniques: LLM query rewriting with recent turns; multi-query expansion (several paraphrases, merged results); entity tracking from previous answers (IDs of documents already cited); hypothetical-answer embedding in some domains. Costs: an extra call and latency; mitigate with a small model. Evaluate with multi-turn datasets.",
+      "difficulty": "intermediate",
+      "example": "A job assistant tracks which postings were listed in the previous answer by ID, so \"the second one\" resolves deterministically without an LLM rewrite.",
+      "followUps": [
+        "When is deterministic reference resolution better than rewriting?"
+      ],
+      "format": "subjective",
+      "id": "rag-query-rewrite",
+      "intent": "Conversational retrieval.",
+      "mistakes": [
+        "Embedding the raw follow-up with no context."
+      ],
+      "question": "Users ask follow-up questions like \"what about the second one?\". How does your RAG pipeline handle them?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Problem",
+          "strong": "Identifies non-standalone queries."
+        },
+        {
+          "criterion": "Solution",
+          "strong": "Rewriting or entity tracking."
+        },
+        {
+          "criterion": "Ops",
+          "strong": "Tracing and evaluation."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Retrieval needs a standalone query, so I rewrite the follow-up using the conversation history into a self-contained question — \"What is the notice period in the second contract, Acme 2024?\" — and retrieve with that. I keep the rewrite visible in traces for debugging and fall back to the original query if the rewrite fails.",
+      "tags": [
+        "rag",
+        "conversation",
+        "query rewriting"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Rewriting improves recall but adds latency and can drift from user intent."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Switch embedding models immediately.",
+        "Investigate generation: faithfulness, prompt and passage ordering, using failing traces.",
+        "Increase k to 100.",
+        "Remove citations."
+      ],
+      "deepDive": "Decomposed metrics point to where to look; error analysis on failing examples tells you why.",
+      "difficulty": "foundation",
+      "example": "Reading 30 failing traces showed the model preferring an outdated passage; adding dates and an instruction to prefer the newest policy fixed it.",
+      "followUps": [
+        "What would you look for in the traces?"
+      ],
+      "format": "objective",
+      "id": "rag-recall-objective",
+      "intent": "Objective: isolating generation failures.",
+      "mistakes": [
+        "Re-chunking blindly when retrieval is already good."
+      ],
+      "question": "Recall@5 for your retriever is 0.92 but answers are often wrong. What is the most likely next step?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Targets generation analysis."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Retrieval usually finds the right passage, so investigate generation: check whether the model uses the provided passages (faithfulness), prompt instructions, passage ordering and noise among the five.",
+      "tags": [
+        "rag",
+        "evals",
+        "error analysis"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "None."
+      ]
+    },
+    {
+      "answerIndex": 1,
+      "choices": [
+        "Nothing; vectors are universal.",
+        "Re-embed into a new versioned index, evaluate, then switch.",
+        "Only re-embed new documents.",
+        "Normalize the old vectors."
+      ],
+      "deepDive": "Each model defines its own vector space. Mixing them produces meaningless similarities. Blue/green indexes allow safe cut-over and rollback.",
+      "difficulty": "intermediate",
+      "example": "A shadow index built with the new model was evaluated on the retrieval set before the alias was switched.",
+      "followUps": [
+        "How would you roll back?"
+      ],
+      "format": "objective",
+      "id": "rag-embedding-upgrade-objective",
+      "intent": "Objective: vector space compatibility.",
+      "mistakes": [
+        "Querying old vectors with new query embeddings."
+      ],
+      "question": "You switch to a new embedding model. What must you do with the existing index?",
+      "roles": [
+        "AI Solutions Engineer",
+        "AI Agent/Application Architect",
+        "Staff/Principal Engineer",
+        "Technical Architect"
+      ],
+      "rubric": [
+        {
+          "criterion": "Correctness",
+          "strong": "Chooses re-embedding into a new index."
+        },
+        {
+          "criterion": "Explanation",
+          "strong": "Explains why the correct option is right and why each distractor is wrong."
+        }
+      ],
+      "sources": [],
+      "spokenAnswer": "Re-embed the corpus with the new model (ideally into a new versioned index), evaluate, then switch traffic; vectors from different models are not comparable.",
+      "tags": [
+        "embeddings",
+        "rag",
+        "operations"
+      ],
+      "topic": "RAG & retrieval",
+      "track": "applied-ai",
+      "tradeoffs": [
+        "Re-embedding cost and time."
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "title": "Tool use, orchestration and RAG",
+  "track": "applied-ai"
+}
